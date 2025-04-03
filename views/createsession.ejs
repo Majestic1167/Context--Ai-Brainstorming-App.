@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/mystyle.css">
+    <link rel="stylesheet" href="/css/createsession.css">
+    <title>Create Session</title>
+</head>
+<body>
+    <!-- Navbar -->
+    <header>
+        <div class="logo"><img src="/images/Pagelogo.png" alt="Context Logo" class="logo-icon"> Context</div>
+        <nav>
+          <ul>
+            <li><a href="/Loggedin">Home</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="#">Community</a></li>
+          </ul>
+        </nav>
+        <!-- Profile Icon -->
+  <div class="profile-container">
+    <img src="/images/user.png" alt="Profile" class="profile-icon" id="profile-icon">
+    <div class="dropdown-menu hidden" id="dropdown-menu">
+      <a href="/editprofile">Edit Profile</a>
+      <a href="/statistics">Statistics</a>
+      <a href="/projects">My Projects</a>
+      <a href="/" class="logout-link">Log Out</a>
+    </div>
+  </div>
+      </header>
+    <main>
+        <div class="session-container">
+            <h2>Create Session</h2>
+           
+              <form action="/create" method="GET">
+                <label for="session-name">Session name</label>
+                <input type="text" id="session-name" placeholder="Write here">
+
+                <label for="theme">Theme</label>
+                <input type="text" id="theme" placeholder="Write here">
+
+                <label for="timer">Timer</label>
+                <input type="text" id="timer" placeholder="90s">
+
+                <label for="access-code">Access Code</label>
+                <input type="text" id="access-code" placeholder="ZH1 F78">
+
+                <button type="submit" class="create-button">Create</button>
+            </form>
+        </div>
+    </main>
+
+    <script src="/js/javascriptexe.js"></script>
+</body>
+</html>

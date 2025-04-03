@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="/Css/mystyle.css">
+    <link rel="stylesheet" href="/Css/login.css"> <!-- Keep this for login-specific styles -->
+</head>
+<body>
+    <!-- Navbar -->
+    <%- include('partials/header') %>
+
+    <main class="main-content">
+        <div class="login-box">
+            <h2>Log In</h2>
+            <form action="/Loggedin" method="GET" class="login-form">
+                <input type="text" name="username" placeholder="Email or phone number" required>
+                <input type="password" name="password" placeholder="Password" required>
+                
+                <div class="forgot-password">
+                    <a href="#">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn-login">Sign In</button>
+            </form>
+            <p class="signup-text">New to Contextify? <a href="/Signup">Sign up now</a></p>
+        </div>
+    </main>
+</body>
+</html>

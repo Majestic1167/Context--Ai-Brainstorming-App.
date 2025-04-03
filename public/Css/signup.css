@@ -1,0 +1,165 @@
+/* Header */
+.header {
+  background-color: #000;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);  /* Subtle shadow for depth */
+}
+
+.logo {
+  color: #ffffff;
+  font-size: 28px; /* Slightly larger font for emphasis */
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase; /* Capitalize the logo text */
+}
+
+/* Main Content */
+.main-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  padding-top: 80px;  /* Prevent overlap with the fixed header */
+}
+
+.signup-box {
+  background-color: rgba(0, 0, 0, 0.85); /* Slightly darker background */
+  padding: 40px 30px;
+  border-radius: 12px;
+  text-align: center;
+  width: 380px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4); /* Box shadow for depth */
+  transition: all 0.3s ease-in-out; /* Smooth transition */
+}
+
+.signup-box:hover {
+  transform: translateY(-10px); /* Subtle lift effect on hover */
+}
+
+.signup-box h1 {
+  color: white;
+  margin-bottom: 25px;
+  font-size: 32px;
+  letter-spacing: 1px;
+}
+
+/* Form Styling */
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Add space between form elements */
+}
+
+.signup-form input {
+  padding: 14px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 6px;
+  background-color: #1e1e1e;
+  color: white;
+  font-size: 16px;
+  outline: none;
+  transition: background-color 0.3s ease;
+}
+
+.signup-form input:focus {
+  background-color: #333; /* Darker background on focus for better contrast */
+}
+
+.signup-form input::placeholder {
+  color: #ccc;
+}
+
+/* Checkbox Container */
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  color: white;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.checkbox-container input {
+  margin-right: 8px;
+  transition: transform 0.3s ease;
+}
+
+.checkbox-container input:checked {
+  transform: scale(1.2); /* Slightly enlarge the checkbox when checked */
+}
+
+/* Submit Button */
+.signup-form button {
+  padding: 14px;
+  margin-top: 20px;
+  background: linear-gradient(to right, #5f79ff, #db5aff);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.signup-form button:hover {
+  transform: scale(1.05); /* Button enlargement on hover */
+  opacity: 0.9;
+}
+
+/* Sign In Text */
+.signin-text {
+  margin-top: 25px;
+  font-size: 14px;
+  color: #ccc;
+}
+
+.signin-text a {
+  color: white;
+  font-weight: bold;
+  text-decoration: none;
+  transition: color 0.3s ease, text-decoration 0.3s ease;
+}
+
+.signin-text a:hover {
+  color: #00c6ff;
+  text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .signup-box {
+    width: 90%;
+    padding: 20px;
+  }
+
+  .logo {
+    font-size: 24px;
+  }
+
+  .signup-box h1 {
+    font-size: 28px;
+  }
+
+  .signup-form input {
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .signup-form button {
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .signin-text {
+    font-size: 12px;
+  }
+}

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/Css/mystyle.css" />
+    <link rel="stylesheet" href="/Css/signup.css">
+    <title>Signup</title>
+</head>
+<body>
+     <!-- Navbar -->
+     <%- include('partials/header') %>
+    
+    <main class="main-content">
+        <div class="signup-box">
+            <h1>Sign Up</h1>
+            <form action="/Loggedin" method="GET" class="signup-form">
+              <input type="text" name="username" placeholder="Username" required>
+              <input type="email" name="email" placeholder="Email or phone number" required>
+              <input type="password" name="password" placeholder="Password" required>
+              <input type="password" name="confirmPassword" placeholder="Confirm your password" required>
+          
+              <div class="checkbox-container">
+                  <input type="checkbox" required>
+                  <label>Accept terms and policy</label>
+              </div>
+          
+              <button type="submit">Sign Up</button>
+          </form>
+          
+            <p class="signin-text">Already have an account? <a href="/Login">Sign In</a></p>
+        </div>
+    </main>
+    
+</body>
+</html>

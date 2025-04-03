@@ -1,0 +1,215 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #1e1e2f;
+    color: white;
+    line-height: 1.6;
+}
+
+/* Center content and add padding */
+.container {
+    width: 80%;
+    max-width: 1200px;
+    margin: auto;
+    padding: 40px 30px;
+}
+
+/* Header Styling */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, #4b66e4, #6b00b1);
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Timer Font */
+.time {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* Session Layout */
+.session-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: 20px;
+    flex-wrap: wrap; /* Ensures responsiveness */
+}
+
+/* Session & Theme Styling */
+.session, .theme {
+    background-color: #333;
+    border-radius: 8px;
+    padding: 20px;
+    width: 48%;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease-in-out;
+}
+
+/* Better Hover Effect */
+.session:hover, .theme:hover {
+    background-color: #444;
+}
+
+/* Headings */
+h2 {
+    margin-top: 0;
+    font-size: clamp(20px, 2vw, 28px);
+}
+
+/* Chat & Theme Box */
+.chat-box, .theme-box {
+    background-color: #8642b0;
+    border-radius: 5px;
+    padding: 10px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+/* Button Styling */
+.start-button {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 5px;
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Hover and Active Effect */
+.start-button:hover {
+    background: linear-gradient(135deg, #0056b3, #003f7f);
+    transform: scale(1.05);
+}
+
+/* Button Click Effect */
+.start-button:active {
+    transform: scale(0.98);
+    box-shadow: none;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+    }
+
+    .session-container {
+        flex-direction: column;
+    }
+
+    .session, .theme {
+        width: 100%;
+    }
+
+    .start-button {
+        width: 100%;
+    }
+}
+
+/* Modal Styling */
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #2a2a3a;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    z-index: 1000;
+    display: none;
+}
+
+.modal-content {
+    color: white;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Settings Button - Floating Icon Style */
+.settings-button {
+    background: none; /* No background */
+    border: none;
+    font-size: 24px; /* Adjust size */
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%; /* Circular shape */
+    transition: transform 0.2s ease-in-out;
+}
+
+/* Hover Effect */
+.settings-button:hover {
+    transform: scale(1.2);
+}
+
+/* Settings Dropdown Menu */
+.settings-menu {
+    position: absolute;
+    top: 50px;
+    right: 10px;
+    background-color: rgba(51, 51, 51, 0.9); /* Slight transparency */
+    border-radius: 12px; /* Softer edges */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    width: 180px;
+    display: none;
+    z-index: 1000;
+    backdrop-filter: blur(5px); /* Smooth blur effect */
+}
+
+/* Menu List */
+.settings-menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Menu Items */
+.settings-menu li {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Softer separator */
+}
+
+/* Last Item No Border */
+.settings-menu li:last-child {
+    border-bottom: none;
+}
+
+/* Menu Buttons */
+.settings-menu button {
+    background: none;
+    color: white;
+    border: none;
+    padding: 12px;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.2s ease-in-out;
+}
+
+/* Hover Effect */
+.settings-menu button:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Subtle hover effect */
+}
+
+/* Show Dropdown */
+.settings-menu.visible {
+    display: block;
+}
+
+
