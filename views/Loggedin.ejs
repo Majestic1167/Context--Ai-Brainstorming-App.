@@ -5,13 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Context - Dashboard</title>
     <link rel="stylesheet" href="/Css/mystyle.css" />
-    
   </head>
   <body>
     <!-- Navbar -->
     <header>
-      <div class="logo"><img src="/images/Pagelogo.png" alt="Context Logo" class="logo-icon"> Context</div>
-      
+      <div class="logo">
+        <img src="/images/Pagelogo.png" alt="Context Logo" class="logo-icon" />
+        Context
+      </div>
+
       <nav>
         <ul>
           <li><a href="/Loggedin">Home</a></li>
@@ -19,16 +21,21 @@
           <li><a href="#">Community</a></li>
         </ul>
       </nav>
-   <!-- Profile Icon -->
-  <div class="profile-container">
-    <img src="/images/user.png" alt="Profile" class="profile-icon" id="profile-icon">
-    <div class="dropdown-menu hidden" id="dropdown-menu">
-      <a href="/editprofile">Edit Profile</a>
-      <a href="/statistics">Statistics</a>
-      <a href="/myproject">My Projects</a>
-      <a href="/" class="logout-link">Log Out</a>
-    </div>
-  </div>
+      <!-- Profile Icon -->
+      <div class="profile-container">
+        <img
+          src="/images/user.png"
+          alt="Profile"
+          class="profile-icon"
+          id="profile-icon"
+        />
+        <div class="dropdown-menu hidden" id="dropdown-menu">
+          <a href="/editprofile">Edit Profile</a>
+          <a href="/statistics">Statistics</a>
+          <a href="/myproject">My Projects</a>
+          <a href="/" class="logout-link">Log Out</a>
+        </div>
+      </div>
     </header>
 
     <!-- Logged-in Dashboard Section -->
@@ -36,28 +43,30 @@
       <div class="text-content">
         <h3>WELCOME TO CONTEXT!</h3>
         <p>
-          Unleash your creativity and collaborate in real time. 
-          Our AI-powered brainstorming platform helps transform 
-          your spontaneous thoughts into structured ideas—all within seconds.
+          Unleash your creativity and collaborate in real time. Our AI-powered
+          brainstorming platform helps transform your spontaneous thoughts into
+          structured ideas—all within seconds.
         </p>
         <h2>Jump in and start shaping your next big project!</h2>
         <div class="buttons">
           <a href="/createsession">
-              <button class="create-session">Create Session</button>
+            <button class="create-session">Create Session</button>
           </a>
           <a href="/joinsession">
-              <button class="join-session">Join Session</button>
+            <button class="join-session">Join Session</button>
           </a>
+        </div>
       </div>
-      
-        
+
+      <!-- Hero Image with Animation -->
+      <div class="image-content">
+        <img
+          src="/images/Afterlogin.png"
+          alt="Brainstorming Session"
+          class="hero-image floating"
+        />
       </div>
-      
-       <!-- Hero Image with Animation -->
-  <div class="image-content">
-    <img src="/images/Afterlogin.png" alt="Brainstorming Session" class="hero-image floating">
-  </div>
-</section>
-<script src="/js/javascriptexe.js"></script>
+    </section>
+    <script src="/js/javascriptexe.js"></script>
   </body>
 </html>

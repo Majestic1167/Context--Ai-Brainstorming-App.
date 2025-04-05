@@ -1,5 +1,8 @@
 import express from "express"; // importação do pacote express em syntax module
 const app = express();
+
+import collection from "./mongodb.js";
+
 import path from "path"; // Importa o módulo 'path' do Node.js para lidar com caminhos de ficheiros e diretórios.
 import { fileURLToPath } from "url"; // Importa a função 'fileURLToPath' do módulo 'url' para converter URLs de ficheiro em caminhos de ficheiro.
 const __filename = fileURLToPath(import.meta.url);
@@ -13,7 +16,6 @@ app.use(express.urlencoded({ extended: true })); //é uma função middleware do
 import homeroutes from "./routes/Homeroutes.js"; // importação do arquivo de rotas
 app.use("/", homeroutes); // uso da função de rotas
 
-
 import authentication from "./routes/Authentication.js"; // importação do arquivo de rotas
 app.use("/", authentication); // uso da função de rotas
 
@@ -23,13 +25,10 @@ app.use("/", session); // uso da função de rotas
 import user from "./routes/User.js"; // importação do arquivo de rotas
 app.use("/", user); // uso da função de rotas
 
-
-
 app.listen(3000, (err) => {
   if (err) console.error(err);
   else console.log("Server listening on PORT", 3000);
 });
-
 
 app.post("/login", (req, res) => {
   const { username, password } = req.body;
@@ -37,16 +36,14 @@ app.post("/login", (req, res) => {
   res.send("Login successful!");
 });
 
-app.post("/signup", (req, res) => {
-  const { username, email, password } = req.body;
-  // Handle user registration
-  res.send("Signup successful!");
+app.post("/signup", async (req, res) => {
+  const { name, email, password } = req.body;
+
+  try {
+    await collection.insertMany([{ name, email, password }]);
+    res.render("home");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Signup failed!");
+  }
 });
-
-
-
-const mongoose = require("mongoose");
-
-const methodOverride = require("method-override");
-
-app.use(methodOverride("_method")); // Usar o method-override middleware
