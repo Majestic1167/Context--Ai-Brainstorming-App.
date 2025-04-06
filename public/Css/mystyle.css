@@ -9,7 +9,6 @@ body {
   min-height: 100vh;
 }
 
-
 /* Glassmorphism Effect for Header */
 header {
   display: flex;
@@ -42,7 +41,7 @@ nav {
 nav ul {
   list-style: none;
   display: flex;
-  gap: 30px;  /* Adjust space between links */
+  gap: 30px; /* Adjust space between links */
   padding: 0;
   margin: 0;
 }
@@ -52,12 +51,12 @@ nav ul li {
 }
 
 nav ul li a {
-  color: white;  /* Text color */
-  text-decoration: none;  /* Remove underline by default */
-  font-size: 18px;  /* Font size */
-  font-weight: bold;  /* Bold text */
+  color: white; /* Text color */
+  text-decoration: none; /* Remove underline by default */
+  font-size: 18px; /* Font size */
+  font-weight: bold; /* Bold text */
   position: relative;
-  transition: color 0.3s ease, transform 0.3s ease;  /* Transition effect for color and scale */
+  transition: color 0.3s ease, transform 0.3s ease; /* Transition effect for color and scale */
 }
 
 /* Hover Effect: Text color changes and underline expands */
@@ -68,21 +67,19 @@ nav ul li a::before {
   left: 50%;
   width: 0%;
   height: 3px;
-  background: #00c6ff;  /* Underline color */
-  transition: width 0.4s ease;  /* Smooth transition for the underline */
+  background: #00c6ff; /* Underline color */
+  transition: width 0.4s ease; /* Smooth transition for the underline */
   transform: translateX(-50%);
 }
 
 nav ul li a:hover::before {
-  width: 100%;  /* Expand the underline */
+  width: 100%; /* Expand the underline */
 }
 
 nav ul li a:hover {
-  color: #00c6ff;  /* Text color on hover */
-  transform: scale(1.1);  /* Slightly increase the text size on hover */
+  color: #00c6ff; /* Text color on hover */
+  transform: scale(1.1); /* Slightly increase the text size on hover */
 }
-
-
 
 /* Hero Section */
 .hero {
@@ -134,14 +131,16 @@ nav ul li a:hover {
 }
 
 /* Button Hover Effects */
-.login, .register {
+.login,
+.register {
   background: linear-gradient(to right, #00c6ff, #0072ff);
   color: white;
   position: relative;
   overflow: hidden;
 }
 
-.login:hover, .register:hover {
+.login:hover,
+.register:hover {
   background: linear-gradient(to right, #0072ff, #00c6ff);
   transform: scale(1.05);
   box-shadow: 0 0 15px rgba(0, 198, 255, 0.8);
@@ -175,7 +174,7 @@ nav ul li a:hover {
   .hero {
     padding: 60px 50px;
   }
-  
+
   .text-content {
     max-width: 100%;
   }
@@ -189,7 +188,7 @@ nav ul li a:hover {
   header {
     padding: 15px 30px;
   }
-  
+
   nav ul {
     gap: 20px;
   }
@@ -273,7 +272,6 @@ nav ul li a:hover {
   }
 }
 
-
 /* Adjust Navigation Styles for Smaller Screens */
 @media (max-width: 768px) {
   nav {
@@ -281,7 +279,12 @@ nav ul li a:hover {
     align-items: center; /* Center items */
     padding: 10px; /* Uniform padding */
     width: 100%; /* Ensure full width */
-    background: rgba(0, 0, 0, 0.8); /* Slightly darker background for better contrast */
+    background: rgba(
+      0,
+      0,
+      0,
+      0.8
+    ); /* Slightly darker background for better contrast */
   }
 
   nav .logo {
@@ -330,20 +333,20 @@ nav ul li a:hover {
 
 /* Hover Effect */
 .profile-icon:hover {
-  border-color: #4CAF50; /* Change border color on hover */
+  border-color: #4caf50; /* Change border color on hover */
 }
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .profile-icon {
-      width: 35px;
-      height: 35px;
+    width: 35px;
+    height: 35px;
   }
 }
 
-
 /* New Button Styles */
-.create-session, .join-session {
+.create-session,
+.join-session {
   font-size: 18px;
   padding: 12px 25px;
   border: none;
@@ -380,9 +383,6 @@ nav ul li a:hover {
   box-shadow: 0 0 15px rgba(255, 126, 95, 0.8);
 }
 
-
-
-
 /* Hero Heading */
 .hero h3 {
   font-size: 3rem;
@@ -412,8 +412,6 @@ nav ul li a:hover {
   opacity: 0.9;
 }
 
-
-
 /* Profile Container */
 .profile-container {
   position: relative;
@@ -440,8 +438,6 @@ nav ul li a:hover {
   width: 150px;
   z-index: 1000;
 }
-
-
 
 .profile-container {
   position: relative;
@@ -480,7 +476,6 @@ nav ul li a:hover {
 .hidden {
   display: none;
 }
-
 
 /* 'Log Out' Link Styling */
 .logout-link {
@@ -578,4 +573,42 @@ nav ul li a:hover {
 
 .social-links a:hover {
   background-color: #72cdc7; /* Warm Amber */
+}
+
+.forgot-password-box {
+  width: 400px;
+  margin: 100px auto;
+  padding: 30px;
+  background-color: #060505;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.forgot-form input {
+  width: 90%;
+  padding: 12px;
+  margin: 15px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.forgot-form button {
+  width: 95%;
+  padding: 12px;
+  background-color: #972eb1;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.forgot-form button:hover {
+  background-color: #45a049;
+}
+
+.error-message {
+  color: red;
+  margin-bottom: 10px;
 }
