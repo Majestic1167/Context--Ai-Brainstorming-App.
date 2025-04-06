@@ -14,7 +14,16 @@
     <main class="main-content">
       <div class="signup-box">
         <h1>Sign Up</h1>
-        <form action="/signup" method="GET" class="signup-form">
+
+        <% if (error) { %>
+        <div class="error-message"><%= error %></div>
+        <% } %>
+
+        <form action="/signup" method="POST" class="signup-form">
+          <!-- Add the Name input field -->
+
+          <input type="text" name="name" placeholder="Name" required />
+
           <input type="text" name="username" placeholder="Username" required />
           <input
             type="email"
@@ -22,6 +31,8 @@
             placeholder="Email or phone number"
             required
           />
+          <input type="text" name="phone" placeholder="Phone number" required />
+
           <input
             type="password"
             name="password"

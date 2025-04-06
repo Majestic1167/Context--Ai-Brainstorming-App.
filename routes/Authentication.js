@@ -1,13 +1,21 @@
 import express from "express";
-
 const router = express.Router();
 
-import { getLoginPage, getSignupPage, getLoggedinPage } from "../controllers/Authenticationcontroller.js";
+import {
+  getLoginPage,
+  getSignupPage,
+  getLoggedinPage,
+  handleLogin,
+  handleSignup,
+} from "../controllers/Authenticationcontroller.js"; // make sure file name is correct
 
-router.get("/Login", getLoginPage); // Route for login page
+// GET routes
+router.get("/Login", getLoginPage);
+router.get("/Signup", getSignupPage);
+router.get("/Loggedin", getLoggedinPage);
 
-router.get("/Signup", getSignupPage); // Route for signup page
+// POST routes
+router.post("/login", handleLogin);
+router.post("/signup", handleSignup);
 
-router.get("/Loggedin", getLoggedinPage); // Route for login page
-
-export default router; 
+export default router;

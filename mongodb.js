@@ -10,7 +10,7 @@ import { Server } from "socket.io";
 
 mongoose
   .connect(
-    "mongodb+srv://Admin:A1234567@cluster777.ybdgv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster777",
+    "mongodb+srv://Admin:A1234567@cluster777.ybdgv.mongodb.net/loginSystem?retryWrites=true&w=majority&appName=Cluster777",
     { useUnifiedTopology: true, useNewUrlParser: true }
   )
   .then(() => {
@@ -20,21 +20,38 @@ mongoose
     console.error("Connection error:", err);
   });
 
-// Schema
 const LogInSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
+    required: true, // Full name is required
+  },
+
+  username: {
+    type: String,
+    required: true, // Username is required
+    unique: true, // Optionally enforce unique usernames
+  },
+
+  email: {
+    type: String,
+    required: true, // Email is required
+    unique: true, // Optionally enforce unique emails
+  },
+
+  phone: {
+    type: String,
+    required: false, // Phone number is optional (set to true if required)
+    unique: true, // Optionally enforce unique phone numbers
+    match: [/^\d{10}$/, "Please enter a valid 10-digit phone number"], // Optional: validate phone number format (e.g., 10 digits)
   },
 
   password: {
     type: String,
-    required: true,
+    required: true, // Password is required
   },
 });
 
 // Model
 const collection = mongoose.model("collection", LogInSchema);
 
-// Export
 export default collection;
