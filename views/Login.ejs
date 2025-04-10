@@ -15,16 +15,11 @@
     <main class="main-content">
       <div class="login-box">
         <h2>Log In</h2>
-        <% if (error) { %>
+        <% if (error && error.length > 0) { %>
         <div style="color: red; margin-bottom: 10px"><%= error %></div>
         <% } %>
         <form action="/login" method="POST" class="login-form">
-          <input
-            type="text"
-            name="username"
-            placeholder="Email or phone number"
-            required
-          />
+          <input type="text" name="username" placeholder="Username" required />
           <input
             type="password"
             name="password"
@@ -36,7 +31,7 @@
             <a href="/Forgotpassword">Forgot password?</a>
           </div>
 
-          <button type="submit" class="btn-login">Sign In</button>
+          <button type="submit" class="btn-login">Log In</button>
         </form>
         <p class="signup-text">
           New to Contextify? <a href="/Signup">Sign up now</a>

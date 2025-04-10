@@ -1,42 +1,81 @@
-import express from "express"; // importação do pacote express em syntax module
-const app = express();
+import connectDB from "./config/mongodb.js";
+import "./config/passport.js"; // Import the Passport configuration
+
+import express from "express";
+import flash from "connect-flash";
+
+import passport from "passport";
 
 import session from "express-session";
+import path from "path";
+import { fileURLToPath } from "url";
 
+// Initialize the express app
+const app = express();
+
+// Ensure to define the paths
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Configure session middleware (should be before passport)
 app.use(
   session({
-    secret: "your-secret-key", //  Change this to a secure secret in production
+    secret: "your_secret_key",
     resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false }, // Set to true only if using HTTPS
+    saveUninitialized: false,
+    cookie: { secure: false },
   })
 );
 
-import path from "path"; // Importa o módulo 'path' do Node.js para lidar com caminhos de ficheiros e diretórios.
-import { fileURLToPath } from "url"; // Importa a função 'fileURLToPath' do módulo 'url' para converter URLs de ficheiro em caminhos de ficheiro.
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename); // apanha o diretório de execução do ficheiro
+app.use(express.urlencoded({ extended: true }));
 
-app.set("view engine", "ejs"); //método para configurar a nossa view engine para "ejs"
+// Configure flash middleware
+app.use(flash());
 
-app.use(express.static(__dirname + "/public")); //é uma função middleware no framework Express.js para Node.js que serve arquivos estáticos, como imagens, arquivos CSS e JavaScript.
-app.use(express.urlencoded({ extended: true })); //é uma função middleware do Express.js que é usada para analisar dados de formulários HTML que são enviados para o servidor.
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
 
+// Set the view engine to EJS
+app.set("view engine", "ejs");
+
+// Serve static files (like CSS, JS, and images)
+app.use(express.static(__dirname + "/public"));
+
+// Parse URL-encoded bodies (for form submissions)
+app.use(express.urlencoded({ extended: true }));
+
+// Parse JSON bodies (for API requests)
 app.use(express.json());
 
-import homeroutes from "./routes/Homeroutes.js"; // importação do arquivo de rotas
-app.use("/", homeroutes); // uso da função de rotas
+// Routes for handling the app logic
+import homeroutes from "./routes/Homeroutes.js";
+app.use("/", homeroutes); // Home routes
 
-import authentication from "./routes/Authentication.js"; // importação do arquivo de rotas
-app.use("/", authentication); // uso da função de rotas
+import authentication from "./routes/Authentication.js";
+app.use("/", authentication); // Authentication routes
 
-import SessionRoute from "./routes/SessionRoute.js"; // importação do arquivo de rotas
-app.use("/", SessionRoute); // uso da função de rotas
+import SessionRoute from "./routes/SessionRoute.js";
+app.use("/", SessionRoute); // Session management routes
 
-import user from "./routes/User.js"; // importação do arquivo de rotas
-app.use("/", user); // uso da função de rotas
+import user from "./routes/User.js";
+app.use("/", user); // User management routes
 
+// Make flash messages available to views
+app.use((req, res, next) => {
+  res.locals.messages = req.flash();
+  next();
+});
+
+// Start the server
 app.listen(3000, (err) => {
   if (err) console.error(err);
-  else console.log("Server listening on PORT", 3000);
+  else console.log("Server listening on PORT 3000");
 });
+
+app.use((req, res, next) => {
+  res.locals.user = req.session.user || null;
+  next();
+});
+
+connectDB();

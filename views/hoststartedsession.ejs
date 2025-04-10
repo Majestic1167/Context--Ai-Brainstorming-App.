@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/Css/round1.css" />
+  </head>
+  <body>
+    <!-- Include Header -->
+    <%- include('partials/header') %>
+
+    <div class="session-container" data-session-id="<%= session._id %>">
+      <div class="header-section">
+        <div class="timer">1:30</div>
+        <div class="session-name">Session Name</div>
+        <div class="theme">Theme</div>
+
+        <!-- Settings Button -->
+        <button class="settings-button" id="settings-btn">⚙️</button>
+
+        <!-- Dropdown Menu for Settings -->
+        <div id="settings-menu" class="settings-menu">
+          <ul>
+            <li><button id="manage-user">Manage User</button></li>
+            <li><button id="terminate-session">Terminate Session</button></li>
+            <li><button id="restart-session">Restart Session</button></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="chat-section">
+        <h3>Chat</h3>
+        <p>Start writing your ideas</p>
+        <div class="chat-box">
+          <div class="user-typing">
+            <span class="user-icon">&#128100;</span> Username 1
+            <span class="typing">Typing...</span>
+          </div>
+          <div class="user-typing">
+            <span class="user-icon">&#128100;</span> Username 2
+            <span class="typing">Typing...</span>
+          </div>
+        </div>
+        <form action="/nextround" method="GET" class="input-section">
+          <input
+            type="text"
+            name="message"
+            placeholder="Write here"
+            class="chat-input"
+          />
+          <button type="submit" class="send-btn">Send</button>
+        </form>
+      </div>
+
+      <div class="brainstorming-section">
+        <h3>Brainstorming Ideas</h3>
+        <div class="ideas-box"></div>
+      </div>
+    </div>
+
+    <!-- Include JavaScript for Settings Dropdown -->
+    <script src="/Js/session.js"></script>
+  </body>
+</html>

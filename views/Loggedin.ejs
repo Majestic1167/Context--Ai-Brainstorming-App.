@@ -8,14 +8,13 @@
   </head>
   <body>
     <!-- Navbar -->
-    <header>
+    <header class="navbar">
       <div class="logo">
         <img src="/images/Pagelogo.png" alt="Context Logo" class="logo-icon" />
-        Context
+        <span class="logo-text">Context</span>
       </div>
-
       <nav>
-        <ul>
+        <ul class="nav-links">
           <li><a href="/Loggedin">Home</a></li>
           <li><a href="/about">About</a></li>
           <li><a href="#">Community</a></li>
@@ -33,12 +32,22 @@
           <a href="/editprofile">Edit Profile</a>
           <a href="/statistics">Statistics</a>
           <a href="/myproject">My Projects</a>
-          <a href="/" class="logout-link">Log Out</a>
+          <a href="/logout" class="logout-link">Log Out</a>
         </div>
       </div>
     </header>
 
-    <!-- Logged-in Dashboard Section -->
+    <!-- Welcome Section -->
+    <% if (user) { %>
+    <section class="welcome">
+      <h1>Welcome, <%= user.username %>!</h1>
+      <p class="subtitle">
+        Glad to have you back. Here's your dashboard overview.
+      </p>
+    </section>
+    <% } %>
+
+    <!-- Hero Section -->
     <section class="hero">
       <div class="text-content">
         <h3>WELCOME TO CONTEXT!</h3>
@@ -58,7 +67,6 @@
         </div>
       </div>
 
-      <!-- Hero Image with Animation -->
       <div class="image-content">
         <img
           src="/images/Afterlogin.png"
@@ -67,6 +75,26 @@
         />
       </div>
     </section>
+
+    <!-- Admin Panel (Only visible to Admins) -->
+    <% if (user && user.isAdmin) { %>
+    <section class="admin-dashboard">
+      <h2>👑 Admin Dashboard</h2>
+      <p>
+        You have administrative privileges. Use the tools below to manage the
+        platform.
+      </p>
+      <div class="admin-buttons">
+        <a href="/admin/manageusers">
+          <button class="admin-button">Manage Users</button>
+        </a>
+        <a href="/admin/settings">
+          <button class="admin-button">Admin Settings</button>
+        </a>
+      </div>
+    </section>
+    <% } %>
+
     <script src="/js/javascriptexe.js"></script>
   </body>
 </html>

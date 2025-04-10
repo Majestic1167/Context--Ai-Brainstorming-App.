@@ -1,78 +1,44 @@
 import bcrypt from "bcrypt";
 import crypto from "crypto"; // To generate a random verification code
-import collection from "../mongodb.js";
+import User from "../models/User.js";
 
-// GET Routes
-export function getLoginPage(req, res) {
-  res.render("Login", { error: null });
-}
+// GET Rouutes
+export const getLoginPage = (req, res) => {
+  if (req.isAuthenticated()) {
+    console.log("Login page requested");
+    return res.redirect("/loggedin");
+  }
+
+  // Pass error messages from flash (if any)
+  res.render("login", {
+    error: req.flash("error"),
+  });
+};
 
 export function getSignupPage(req, res) {
   res.render("Signup", { error: null });
 }
 
 export function getForgotpasswordPage(req, res) {
-  res.render("Forgotpassword", { error: null }); // explicitly pass error
+  res.render("Forgotpassword", { error: null });
 }
 
 export function getverifycodePage(req, res) {
-  res.render("Verifycode", { error: null }); // Make sure the error is passed explicitly
+  res.render("Verifycode", { error: null });
 }
 
 // GET route for /resetpassword
 export function getResetPasswordPage(req, res) {
-  res.render("ResetPassword", { error: null }); // Render the reset password page
+  res.render("ResetPassword", { error: null });
 }
-
-// POST Routes
 
 export function getLoggedinPage(req, res) {
-  if (!req.session.user) {
-    return res.status(401).send("Please login first!");
+  if (!req.isAuthenticated()) {
+    return res.redirect("/login");
   }
 
-  res.render("loggedin", { username: req.session.user.username });
-}
-
-// POST Routes
-
-export async function handleLogin(req, res) {
-  const { username, password } = req.body;
-
-  // Check if input is a Gmail address or a phone number
-  const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(username); // This accepts any valid email
-  const isPhone = /^[0-9]{9,15}$/.test(username); // Adjust the regex if needed
-
-  console.log("Identifier: ", username); // Check the identifier
-
-  let user;
-
-  if (isEmail) {
-    console.log("Checking email in database..."); // Debug log
-    user = await collection.findOne({ email: username });
-  } else if (isPhone) {
-    console.log("Checking phone in database..."); // Debug log
-    user = await collection.findOne({ phone: username });
-  } else {
-    return res.render("Login", {
-      error: "Enter a valid Gmail or phone number!",
-    });
-  }
-
-  if (!user) {
-    console.log("User not found in database."); // Debug log
-    return res.render("Login", { error: "User not found!" });
-  }
-
-  const match = await bcrypt.compare(password, user.password);
-
-  if (!match) {
-    console.log("Password mismatch."); // Debug log
-    return res.render("Login", { error: "Invalid credentials!" });
-  }
-
-  req.session.user = user;
-  res.redirect("/loggedin");
+  // Pass the full 'user' object (including 'isAdmin') to the view
+  res.render("loggedin", { user: req.user });
 }
 
 //signup
@@ -83,7 +49,6 @@ export async function handleSignup(req, res) {
     return res.render("Signup", { error: "Passwords do not match!" });
   }
 
-  // Check if email is a valid Gmail address
   if (!/^[^\s@]+@gmail\.com$/.test(email)) {
     return res.render("Signup", { error: "Only Gmail addresses are allowed!" });
   }
@@ -95,7 +60,7 @@ export async function handleSignup(req, res) {
 
   try {
     // Check if the email or phone number already exists in the database
-    const existingUser = await collection.findOne({
+    const existingUser = await User.findOne({
       $or: [{ email }, { phone }],
     });
 
@@ -109,7 +74,7 @@ export async function handleSignup(req, res) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create a new user
-    const newUser = new collection({
+    const newUser = new User({
       name,
       username,
       email,
@@ -143,7 +108,7 @@ export async function handleForgotPassword(req, res) {
 
   try {
     // Find the user by email or phone number in the database
-    const user = await collection.findOne({
+    const user = await User.findOne({
       $or: [{ email: identifier }, { phone: identifier }],
     });
 
@@ -207,8 +172,8 @@ export async function handleResetPassword(req, res) {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   // Find the user in the database and update their password
-  const user = await collection.findOneAndUpdate(
-    { email: req.session.userEmail }, // Use the email stored in the session
+  const user = await User.findOneAndUpdate(
+    { email: req.session.userEmail },
     { $set: { password: hashedPassword } },
     { new: true }
   );

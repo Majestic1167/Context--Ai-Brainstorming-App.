@@ -1,0 +1,195 @@
+/* joinedsession.css */
+
+/* Main container styles */
+.session-container {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 20px;
+  color: white;
+}
+
+/* Header section with timer, session name, and theme */
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(41, 23, 102, 0.8);
+  padding: 15px 30px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.timer {
+  background: #1a0d2e;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.session-name,
+.theme {
+  font-size: 20px;
+  font-weight: bold;
+  padding: 10px 20px;
+  background: rgba(26, 13, 46, 0.8);
+  border-radius: 5px;
+}
+
+/* Main content grid layout */
+.main-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* Chat and Brainstorming sections */
+.chat-section,
+.brainstorming-section {
+  background: rgba(41, 23, 102, 0.8);
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.section-title {
+  color: white;
+  margin-bottom: 15px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* Chat box and Ideas box */
+.chat-box,
+.ideas-box {
+  background: #1a0d2e;
+  border-radius: 8px;
+  min-height: 300px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+/* Placeholder text */
+.placeholder-text {
+  color: #666;
+  text-align: center;
+  margin-top: 130px;
+  font-size: 16px;
+}
+
+/* Wait message */
+.wait-message {
+  background: #1a0d2e;
+  padding: 15px;
+  text-align: center;
+  border-radius: 8px;
+  margin-top: 10px;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+/* Input area */
+.input-area {
+  margin-top: 15px;
+  position: relative;
+}
+
+.input-area input {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  background: #1a0d2e;
+  color: white;
+  font-size: 14px;
+}
+
+.input-area input::placeholder {
+  color: #666;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .main-content {
+    grid-template-columns: 1fr;
+  }
+
+  .header-section {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+
+  .session-container {
+    padding: 10px;
+  }
+}
+
+/* Animation for timer */
+@keyframes timerPulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.timer {
+  animation: timerPulse 2s infinite;
+}
+
+/* Glassmorphism effects */
+.chat-section,
+.brainstorming-section,
+.header-section {
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Hover effects */
+.chat-box:hover,
+.ideas-box:hover {
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+/* Custom scrollbar */
+.chat-box::-webkit-scrollbar,
+.ideas-box::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-box::-webkit-scrollbar-track,
+.ideas-box::-webkit-scrollbar-track {
+  background: #1a0d2e;
+}
+
+.chat-box::-webkit-scrollbar-thumb,
+.ideas-box::-webkit-scrollbar-thumb {
+  background: #3e1f5f;
+  border-radius: 4px;
+}
+
+/* Focus states */
+input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(62, 31, 95, 0.5);
+}
+
+/* Button styles */
+button {
+  background: #3e1f5f;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background: #4e2f6f;
+}

@@ -1,19 +1,28 @@
-
 import express from "express";
 const router = express.Router();
 
-import { getcreatesessionpage, getjoinsessionpage, getcreatepage, getFirstRoundHostPage, getnextroundPage} 
-from "../controllers/sessioncontroller.js";
+import {
+  getCreateSessionPage,
+  postCreateSession,
+  getjoinsessionpage,
+  postjoinsession,
+  getFirstRoundHostPage,
+  getNextRoundPage,
+  terminateSession,
+} from "../controllers/sessioncontroller.js";
 
-router.get("/createsession", getcreatesessionpage); // Route for login page
+router.get("/createsession", getCreateSessionPage);
 
-router.get("/create", getcreatepage);
+router.post("/create", postCreateSession);
 
-router.get("/joinsession", getjoinsessionpage); // Route for login page
+router.get("/joinsession", getjoinsessionpage);
+
+router.post("/joinsession", postjoinsession);
 
 router.get("/getfirstround", getFirstRoundHostPage);
 
-router.get("/nextround", getnextroundPage);
+router.get("/nextround", getNextRoundPage);
 
+router.delete("/terminate-session/:sessionId", terminateSession);
 
-export default router; 
+export default router;

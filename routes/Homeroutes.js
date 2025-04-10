@@ -6,6 +6,6 @@ const router = express.Router();
 
 router.get("/", getHomepage);
 
-router.get("/about", getaboutpage); // Route for login page
+router.get("/about", getaboutpage);
 
 export default router;

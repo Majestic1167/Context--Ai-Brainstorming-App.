@@ -1,0 +1,28 @@
+import mongoose from "mongoose";
+
+const sessionSchema = new mongoose.Schema({
+  sessionName: { type: String, required: true },
+  theme: { type: String, required: true },
+  timer: { type: Number, default: 90 },
+  accessCode: { type: String, required: true },
+  hostId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  participants: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  currentRound: { type: Number, default: 1 },
+});
+
+// Fix: Use regular function and call `next()`
+sessionSchema.pre("validate", function (next) {
+  if (!this.accessCode) {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let code = "";
+    for (let i = 0; i < 6; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    this.accessCode = code;
+    console.log("Generated access code:", this.accessCode);
+  }
+  next();
+});
+
+const Session = mongoose.model("Session", sessionSchema);
+export default Session;
