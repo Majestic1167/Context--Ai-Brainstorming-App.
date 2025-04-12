@@ -1,31 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <link rel="stylesheet" href="/Css/mystyle.css" />
-    <link rel="stylesheet" href="/Css/login.css" />
-    <!-- Keep this for login-specific styles -->
-  </head>
-  <body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
     <!-- Navbar -->
-    <header>
-      <div class="logo">
-        <img src="/images/Pagelogo.png" alt="Context Logo" class="logo-icon" />
-        Context
-      </div>
-
-      <nav>
-        <ul>
-          <!-- Dynamically change Home link based on login status -->
-          <li>
-            <a href="">Home</a>
-          </li>
-          <li><a href="/about">About</a></li>
-          <li><a href="#">Community</a></li>
-        </ul>
-      </nav>
+    <header style="display: flex; align-items: center; justify-content: space-between; padding: 10px 20px;">
+        <!-- Logo na esquerda -->
+        <div class="logo" style="flex: 1;">
+            <img src="/images/Header_logo.png" alt="Context Logo" class="logo-icon" style="width: 180px; height: auto;">
+        </div>
+        <!-- Navegação centralizada -->
+        <nav style="flex: 2; text-align: center;">
+            <ul style="list-style: none; padding: 0; margin: 0; display: flex; justify-content: center;">
+                <li style="margin: 0 15px;">
+                    <a href="" style="text-decoration: none; font-size: 18px; color: white;">Home</a>
+                </li>
+                <li style="margin: 0 15px;">
+                    <a href="/about" style="text-decoration: none; font-size: 18px; color: white;">About</a>
+                </li>
+                <li style="margin: 0 15px;">
+                    <a href="#" style="text-decoration: none; font-size: 18px; color: white;">Community</a>
+                </li>
+            </ul>
+        </nav>
+        <!-- Espaço extra para manter o equilíbrio -->
+        <div style="flex: 1;"></div>
     </header>
-  </body>
+</body>
 </html>
