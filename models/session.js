@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const sessionSchema = new mongoose.Schema({
-  sessionName: { type: String, required: true },
+  sessionName: { type: String, required: true,unique:true },
   theme: { type: String, required: true },
   timer: { type: Number, default: 90 },
   accessCode: { type: String, required: true },
