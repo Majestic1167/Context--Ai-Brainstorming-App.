@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import crypto from "crypto"; // To generate a random verification code
 import User from "../models/User.js";
 
-// GET Rouutes
+// GET Rouutes(this needs to be used done in the middleware)
 export const getLoginPage = (req, res) => {
   if (req.isAuthenticated()) {
     console.log("Login page requested");
@@ -14,6 +14,15 @@ export const getLoginPage = (req, res) => {
     error: req.flash("error"),
   });
 };
+
+export function getLoggedinPage(req, res) {
+  if (!req.isAuthenticated()) {
+    return res.redirect("/login");
+  }
+
+  // Pass the full 'user' object (including 'isAdmin') to the view
+  res.render("loggedin", { user: req.user });
+}
 
 export function getSignupPage(req, res) {
   res.render("Signup", { error: null });
@@ -30,15 +39,6 @@ export function getverifycodePage(req, res) {
 // GET route for /resetpassword
 export function getResetPasswordPage(req, res) {
   res.render("ResetPassword", { error: null });
-}
-
-export function getLoggedinPage(req, res) {
-  if (!req.isAuthenticated()) {
-    return res.redirect("/login");
-  }
-
-  // Pass the full 'user' object (including 'isAdmin') to the view
-  res.render("loggedin", { user: req.user });
 }
 
 //signup

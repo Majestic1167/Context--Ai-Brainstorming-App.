@@ -10,6 +10,9 @@ import session from "express-session";
 import path from "path";
 import { fileURLToPath } from "url";
 
+import dotenv from "dotenv";
+dotenv.config();
+
 // Initialize the express app
 const app = express();
 
@@ -20,7 +23,7 @@ const __dirname = path.dirname(__filename);
 // Configure session middleware (should be before passport)
 app.use(
   session({
-    secret: "your_secret_key",
+    secret: process.env.PASSPORTSECRETKEY,
     resave: false,
     saveUninitialized: false,
     cookie: { secure: false },
@@ -68,9 +71,9 @@ app.use((req, res, next) => {
 });
 
 // Start the server
-app.listen(3000, (err) => {
+app.listen(process.env.PORT, (err) => {
   if (err) console.error(err);
-  else console.log("Server listening on PORT 3000");
+  else console.log(`Server start at ${process.env.PORT}`);
 });
 
 app.use((req, res, next) => {
