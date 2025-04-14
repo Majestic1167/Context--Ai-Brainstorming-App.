@@ -14,20 +14,39 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 50px;
+  padding: 15px 15px 15px 15px;/* top right bottom left */
   background: rgba(0, 0, 0, 0.6); /* Semi-transparent black */
   backdrop-filter: blur(10px); /* Frosted glass effect */
-  border-bottom: 2px solid rgb(255, 255, 255);
+  border-bottom: 2px solid rgb(0, 0, 0);
 }
 
 /* Logo */
 .logo img {
-  width: 80px;
+  width: 150px;
   height: auto;
   transition: transform 0.3s ease;
 }
 
 .logo img:hover {
+  transform: scale(1.1);
+}
+
+/* Button back */
+.back {
+  position: absolute; /* ou fixed, se quiser flutuando */
+  right: 20px;
+  top: 20px;
+  z-index: 1000;
+}
+
+.back-icon {
+  width: 32px;
+  height: auto;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.back-icon:hover {
   transform: scale(1.1);
 }
 
