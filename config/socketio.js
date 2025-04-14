@@ -1,9 +1,9 @@
-import socketIO from "socket.io";
+import { Server } from "socket.io";
 
 let io;
 
 export function initSocket(server) {
-  io = socketIO(server);
+  io = new Server(server);
 
   io.on("connection", (socket) => {
     console.log("A user connected");

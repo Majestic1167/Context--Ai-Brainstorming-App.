@@ -18,12 +18,21 @@ export async function postCreateSession(req, res) {
       theme,
       timer: parseInt(timer) || 90,
       hostId: req.user._id,
-      participants: [req.user._id],
+      participants: [req.user._id], // Host is automatically a participant
     });
 
     await newSession.save();
 
-    res.redirect(`/getfirstround?sessionId=${newSession._id}`);
+    // Populate the session data before rendering
+    const populatedSession = await Session.findById(newSession._id)
+      .populate("hostId", "username profilePicture")
+      .populate("participants", "username profilePicture");
+
+    res.render("joinedsession", {
+      session: populatedSession,
+      user: req.user,
+      isHost: true,
+    });
   } catch (error) {
     console.error("Error creating session:", error);
     res.render("createsession", {
@@ -93,8 +102,8 @@ export async function postjoinsession(req, res) {
 
   try {
     const session = await Session.findOne({ accessCode })
-      .populate("hostId", "username")
-      .populate("participants", "username");
+      .populate("hostId", "username profilePicture")
+      .populate("participants", "username profilePicture");
 
     if (!session) {
       return res.render("joinsession", {
@@ -102,21 +111,43 @@ export async function postjoinsession(req, res) {
       });
     }
 
-    // Check if already joined
-    const alreadyJoined = session.participants.some((p) =>
-      p._id.equals(req.user._id)
+    // Check if user is the host (they're already in participants)
+    if (session.hostId.equals(req.user._id)) {
+      return res.render("joinedsession", {
+        session,
+        user: req.user,
+        isHost: true,
+      });
+    }
+
+    // Check if already joined (but not the host)
+    const alreadyJoined = session.participants.some((participantId) =>
+      participantId.equals(req.user._id)
     );
 
     if (!alreadyJoined) {
+      // Add the new participant
       session.participants.push(req.user._id);
       await session.save();
-    }
 
-    //Render joined session page
-    res.render("joinedsession", {
-      session,
-      user: req.user,
-    });
+      // Reload the session with updated participants
+      const updatedSession = await Session.findById(session._id)
+        .populate("hostId", "username profilePicture")
+        .populate("participants", "username profilePicture");
+
+      res.render("joinedsession", {
+        session: updatedSession,
+        user: req.user,
+        isHost: false,
+      });
+    } else {
+      // If already joined, just render the session
+      res.render("joinedsession", {
+        session,
+        user: req.user,
+        isHost: false,
+      });
+    }
   } catch (error) {
     console.error("Error joining session:", error);
     res.render("joinsession", {

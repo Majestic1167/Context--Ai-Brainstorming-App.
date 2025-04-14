@@ -14,10 +14,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import http from "http"; // For creating an HTTP server
-import { initSocket } from "./config/socket.js"; // Import socket setup
-
-// Initialize Socket.IO
-initSocket(server);
+import { initSocket } from "./config/socketio.js"; // Import socket setup
 
 // Initialize the express app
 const app = express();
@@ -76,8 +73,12 @@ app.use((req, res, next) => {
   next();
 });
 
+const server = http.createServer(app);
+// Initialize Socket.IO
+initSocket(server);
+
 // Start the server
-app.listen(process.env.PORT, (err) => {
+server.listen(process.env.PORT, (err) => {
   if (err) console.error(err);
   else console.log(`Server start at ${process.env.PORT}`);
 });
