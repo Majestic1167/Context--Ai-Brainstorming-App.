@@ -11,18 +11,25 @@ import {
   terminateSession,
 } from "../controllers/sessioncontroller.js";
 
-router.get("/createsession", getCreateSessionPage);
+import { ensureAuthenticated, ensureHost } from "../middlewares/sessionAuth.js";
 
-router.post("/create", postCreateSession);
+router.get("/createsession", ensureAuthenticated, getCreateSessionPage);
 
-router.get("/joinsession", getjoinsessionpage);
+router.post("/create", ensureAuthenticated, postCreateSession);
 
-router.post("/joinsession", postjoinsession);
+router.get("/joinsession", ensureAuthenticated, getjoinsessionpage);
 
-router.get("/getfirstround", getFirstRoundHostPage);
+router.post("/joinsession", ensureAuthenticated, postjoinsession);
 
-router.get("/nextround", getNextRoundPage);
+router.get("/getfirstround", ensureAuthenticated, getFirstRoundHostPage);
 
-router.delete("/terminate-session/:sessionId", terminateSession);
+router.get("/nextround", ensureAuthenticated, getNextRoundPage);
+
+router.delete(
+  "/terminate-session/:sessionId",
+  ensureAuthenticated,
+  ensureHost,
+  terminateSession
+);
 
 export default router;

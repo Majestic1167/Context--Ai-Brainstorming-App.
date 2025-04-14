@@ -13,6 +13,12 @@ import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 dotenv.config();
 
+import http from "http"; // For creating an HTTP server
+import { initSocket } from "./config/socket.js"; // Import socket setup
+
+// Initialize Socket.IO
+initSocket(server);
+
 // Initialize the express app
 const app = express();
 

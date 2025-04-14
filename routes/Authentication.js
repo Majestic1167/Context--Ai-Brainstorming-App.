@@ -16,9 +16,14 @@ import {
   handleResetPassword,
 } from "../controllers/Authenticationcontroller.js";
 
+import {
+  ensureAuthenticated,
+  redirectIfAuthenticated,
+} from "../middlewares/Authentication.js";
+
 // GET routes
-router.get("/login", getLoginPage);
-router.get("/signup", getSignupPage);
+router.get("/login", redirectIfAuthenticated, getLoginPage);
+router.get("/signup", redirectIfAuthenticated, getSignupPage);
 router.get("/loggedin", ensureAuthenticated, getLoggedinPage);
 
 router.get("/Forgotpassword", getForgotpasswordPage);
@@ -26,15 +31,24 @@ router.get("/Verifycode", getverifycodePage);
 router.get("/resetpassword", getResetPasswordPage);
 
 // POST route for login
+// POST route for login
 router.post("/login", (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {
     if (err) return next(err);
-    if (!user) return res.redirect("/login");
 
+    // If no user is found, render the login page with an error message
+    if (!user) {
+      return res.render("login", {
+        user: null, // user is null if authentication fails
+        error: "Invalid username or password", // display error message
+      });
+    }
+
+    // If the user is found, log them in
     req.logIn(user, (err) => {
       if (err) return next(err);
 
-      // Redirect all users to the same dashboard page
+      // Redirect the user to their logged-in page
       return res.redirect("/loggedin");
     });
   })(req, res, next);
@@ -45,21 +59,5 @@ router.post("/signup", handleSignup);
 router.post("/forgotpassword", handleForgotPassword);
 router.post("/verifycode", handleVerifyCode);
 router.post("/resetpassword", handleResetPassword);
-
-// Middleware to protect routes
-
-function ensureAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) {
-    return next();
-  }
-  res.redirect("/login");
-}
-
-function ensureAdmin(req, res, next) {
-  if (req.isAuthenticated() && req.user.isAdmin) {
-    return next();
-  }
-  res.status(403).send("Access denied. Admins only.");
-}
 
 export default router;

@@ -3,24 +3,15 @@ import crypto from "crypto"; // To generate a random verification code
 import User from "../models/User.js";
 
 // GET Rouutes(this needs to be used done in the middleware)
-export const getLoginPage = (req, res) => {
-  if (req.isAuthenticated()) {
-    console.log("Login page requested");
-    return res.redirect("/loggedin");
-  }
-
-  // Pass error messages from flash (if any)
+export function getLoginPage(req, res) {
   res.render("login", {
-    error: req.flash("error"),
+    user: req.user || null,
+    error: null, // Make sure 'error' is defined even if there's no error
   });
-};
+}
 
+// GET: Logged-in Page
 export function getLoggedinPage(req, res) {
-  if (!req.isAuthenticated()) {
-    return res.redirect("/login");
-  }
-
-  // Pass the full 'user' object (including 'isAdmin') to the view
   res.render("loggedin", { user: req.user });
 }
 
