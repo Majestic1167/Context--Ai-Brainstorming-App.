@@ -38,6 +38,7 @@
   width: 380px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4); /* Box shadow for depth */
   transition: all 0.3s ease-in-out; /* Smooth transition */
+  margin-top: 80px; /* Adjust this value to prevent collision with the navbar */
 }
 
 .signup-box:hover {

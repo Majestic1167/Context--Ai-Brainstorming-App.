@@ -22,7 +22,24 @@ import {
 } from "../middlewares/Authentication.js";
 
 // GET routes
-router.get("/login", redirectIfAuthenticated, getLoginPage);
+//router.get("/login", redirectIfAuthenticated, getLoginPage);
+
+router.get("/login", (req, res, next) => {
+  // Clear any existing session when accessing login page
+  if (req.isAuthenticated()) {
+    req.logout((err) => {
+      if (err) {
+        console.error("Error logging out:", err);
+        return next(err);
+      }
+      // After logout, render the login page
+      res.render("login", { user: null, error: null });
+    });
+  } else {
+    res.render("login", { user: null, error: null });
+  }
+});
+
 router.get("/signup", redirectIfAuthenticated, getSignupPage);
 router.get("/loggedin", ensureAuthenticated, getLoggedinPage);
 
@@ -30,8 +47,19 @@ router.get("/Forgotpassword", getForgotpasswordPage);
 router.get("/Verifycode", getverifycodePage);
 router.get("/resetpassword", getResetPasswordPage);
 
-// POST route for login
-// POST route for login
+/*// Add this route for logout
+router.get('/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Error destroying session:', err);
+    }
+    res.clearCookie('sessionId');  // Clear the session cookie
+    res.redirect('/login');
+  });
+});*/
+
+//  login route
+
 router.post("/login", (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {
     if (err) return next(err);

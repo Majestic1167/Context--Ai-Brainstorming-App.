@@ -28,7 +28,7 @@ export async function postCreateSession(req, res) {
       .populate("hostId", "username profilePicture")
       .populate("participants", "username profilePicture");
 
-    res.render("joinedsession", {
+    res.render("hostsession1", {
       session: populatedSession,
       user: req.user,
       isHost: true,
@@ -53,7 +53,7 @@ export async function getFirstRoundHostPage(req, res) {
       return res.status(404).send("Session not found");
     }
 
-    res.render("hostsession1", {
+    res.render("hoststartedsession", {
       session,
       isHost: req.user._id.equals(session.hostId),
     });

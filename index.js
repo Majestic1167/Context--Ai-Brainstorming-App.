@@ -16,6 +16,8 @@ dotenv.config();
 import http from "http"; // For creating an HTTP server
 import { initSocket } from "./config/socketio.js"; // Import socket setup
 
+import { injectUser } from "./middlewares/user.js";
+
 // Initialize the express app
 const app = express();
 
@@ -29,7 +31,12 @@ app.use(
     secret: process.env.PASSPORTSECRETKEY,
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false },
+    cookie: {
+      secure: false,
+      maxAge: 1000 * 60 * 60 * 24, // 30 days
+    },
+    rolling: true,
+    name: "sessionID",
   })
 );
 
@@ -53,6 +60,11 @@ app.use(express.urlencoded({ extended: true }));
 
 // Parse JSON bodies (for API requests)
 app.use(express.json());
+
+app.use((req, res, next) => {
+  res.locals.user = req.session.user || null;
+  next();
+});
 
 // Routes for handling the app logic
 import homeroutes from "./routes/Homeroutes.js";
@@ -83,9 +95,24 @@ server.listen(process.env.PORT, (err) => {
   else console.log(`Server start at ${process.env.PORT}`);
 });
 
+app.use(injectUser);
+
+// Add this middleware here
 app.use((req, res, next) => {
-  res.locals.user = req.session.user || null;
+  res.locals.user = req.user || null;
   next();
 });
 
 connectDB();
+
+app.delete("/terminate-session/:sessionId", (req, res) => {
+  // Handle session termination logic
+  const sessionId = req.params.sessionId;
+  // Terminate the session, maybe delete from the database or handle session cleanup
+  res.json({ message: "Session terminated successfully" });
+});
+
+app.get("/restart-session", (req, res) => {
+  // Handle session restart logic (e.g., reset session state)
+  res.redirect("/create"); // Redirect to session creation page
+});

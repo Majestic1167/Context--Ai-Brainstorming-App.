@@ -4,22 +4,42 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/Css/round1.css" />
+    <link rel="stylesheet" href="/Css/joinedsession.css" />
+    <script src="/socket.io/socket.io.js"></script>
+    <!-- Link to external JavaScript file -->
+    <script src="/js/session.js" defer></script>
   </head>
   <body>
-    <!-- Include Header -->
     <%- include('partials/header') %>
 
     <div class="session-container" data-session-id="<%= session._id %>">
+      <!-- Participants List Section -->
+      <div class="participants-list" id="participants-list">
+        <h3>Participants (<span id="participant-count">0</span>)</h3>
+        <!-- Initial host participant -->
+        <div class="participant host">
+          <img
+            src="<%= user.profilePicture || '/images/default-avatar.png' %>"
+            alt="Host"
+            class="participant-avatar"
+          />
+          <div class="participant-info">
+            <span class="username"><%= user.username %></span>
+            <span class="badge host-badge">Host</span>
+          </div>
+        </div>
+      </div>
+
       <div class="header-section">
-        <div class="timer">1:30</div>
-        <div class="session-name">Session Name</div>
-        <div class="theme">Theme</div>
+        <div class="timer" id="session-timer">1:30</div>
+        <div class="session-name"><%= session.sessionName %></div>
+        <div class="theme"><%= session.theme %></div>
 
         <!-- Settings Button -->
         <button class="settings-button" id="settings-btn">⚙️</button>
 
         <!-- Dropdown Menu for Settings -->
-        <div id="settings-menu" class="settings-menu">
+        <div id="settings-menu" class="settings-menu" style="display: none">
           <ul>
             <li><button id="manage-user">Manage User</button></li>
             <li><button id="terminate-session">Terminate Session</button></li>
@@ -30,23 +50,17 @@
 
       <div class="chat-section">
         <h3>Chat</h3>
-        <p>Start writing your ideas</p>
-        <div class="chat-box">
-          <div class="user-typing">
-            <span class="user-icon">&#128100;</span> Username 1
-            <span class="typing">Typing...</span>
-          </div>
-          <div class="user-typing">
-            <span class="user-icon">&#128100;</span> Username 2
-            <span class="typing">Typing...</span>
-          </div>
+        <div class="chat-box" id="chat-messages">
+          <!-- Messages will appear here -->
         </div>
-        <form action="/nextround" method="GET" class="input-section">
+        <div id="typing-indicator" style="display: none"></div>
+        <form id="chat-form" class="input-section">
           <input
             type="text"
-            name="message"
+            id="chat-input"
             placeholder="Write here"
             class="chat-input"
+            autocomplete="off"
           />
           <button type="submit" class="send-btn">Send</button>
         </form>
@@ -54,11 +68,19 @@
 
       <div class="brainstorming-section">
         <h3>Brainstorming Ideas</h3>
-        <div class="ideas-box"></div>
+        <div class="ideas-box" id="ideas-container">
+          <!-- Ideas will appear here -->
+        </div>
+        <form id="idea-form" class="idea-form">
+          <input
+            type="text"
+            id="idea-input"
+            placeholder="Share your idea..."
+            autocomplete="off"
+          />
+          <button type="submit" class="send-btn">Submit</button>
+        </form>
       </div>
     </div>
-
-    <!-- Include JavaScript for Settings Dropdown -->
-    <script src="/js/session.js"></script>
   </body>
 </html>

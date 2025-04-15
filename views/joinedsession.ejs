@@ -3,19 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Session - <%= session.sessionName %></title>
     <link rel="stylesheet" href="/Css/round1.css" />
     <link rel="stylesheet" href="/Css/joinedsession.css" />
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/session.js"></script>
   </head>
   <body>
-    <!-- Include Header -->
     <%- include('partials/header') %>
 
-    <div class="joined-session-container">
+    <div
+      class="joined-session-container"
+      id="joined-session-container"
+      data-session-id="<%= session._id %>"
+      data-user-id="<%= user._id %>"
+      data-username="<%= user.username %>"
+    >
       <!-- Participants List Section -->
-      <div class="participants-list">
-        <h3>Participants (<%= session.participants.length %>)</h3>
-
-        <!-- Show host first -->
+      <div class="participants-list" id="participants-list">
+        <h3>Participants (<span id="participant-count">0</span>)</h3>
+        <!-- Initial host participant -->
         <div class="participant host">
           <img
             src="<%= session.hostId.profilePicture || '/images/default-avatar.png' %>"
@@ -27,43 +34,48 @@
             <span class="badge host-badge">Host</span>
           </div>
         </div>
-
-        <!-- Show other participants -->
-        <% session.participants.forEach(participant => { %> <% if
-        (!participant._id.equals(session.hostId._id)) { %>
-        <div class="participant">
-          <img
-            src="<%= participant.profilePicture || '/images/default-avatar.png' %>"
-            alt="Participant"
-            class="participant-avatar"
-          />
-          <div class="participant-info">
-            <span class="username"><%= participant.username %></span>
-          </div>
-        </div>
-        <% } %> <% }); %>
       </div>
 
       <div class="joined-header-section">
-        <div class="joined-timer">1:30</div>
-        <div class="joined-session-name">Session Name</div>
-        <div class="joined-theme">Theme</div>
+        <div class="joined-timer" id="session-timer">1:30</div>
+        <div class="joined-session-name"><%= session.sessionName %></div>
+        <div class="joined-theme"><%= session.theme %></div>
       </div>
 
       <div class="joined-content-grid">
+        <!-- Chat Section -->
         <div class="joined-chat-section">
           <h3 class="joined-chat-title">Chat</h3>
-          <div class="joined-chat-box">
-            <p class="joined-placeholder-text">Start writing your ideas</p>
+          <div class="joined-chat-box" id="chat-messages">
+            <!-- Messages will appear here -->
           </div>
-          <div class="joined-wait-message">WAIT FOR THE HOST TO START</div>
+          <div id="typing-indicator" style="display: none"></div>
+          <form id="chat-form" class="chat-form">
+            <input
+              type="text"
+              id="chat-input"
+              placeholder="Type your message..."
+              autocomplete="off"
+            />
+            <button type="submit">Send</button>
+          </form>
         </div>
 
+        <!-- Brainstorming Section -->
         <div class="joined-brainstorming-section">
           <h3 class="joined-brainstorming-title">Brainstorming Ideas</h3>
-          <div class="joined-ideas-box">
+          <div class="joined-ideas-box" id="ideas-container">
             <!-- Ideas will appear here -->
           </div>
+          <form id="idea-form" class="idea-form">
+            <input
+              type="text"
+              id="idea-input"
+              placeholder="Share your idea..."
+              autocomplete="off"
+            />
+            <button type="submit">Submit</button>
+          </form>
         </div>
       </div>
     </div>
