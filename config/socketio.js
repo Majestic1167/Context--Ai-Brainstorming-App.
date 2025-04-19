@@ -1,5 +1,5 @@
 import { Server } from "socket.io";
-import Session from "../models/session.js"; // Add this import
+import Session from "../models/session.js"; // Session model import
 
 let io;
 
@@ -8,52 +8,75 @@ export function initSocket(server) {
 
   // Middleware to authenticate socket connections
   io.use((socket, next) => {
-    const userId = socket.handshake.auth.userId;
-    const username = socket.handshake.auth.username;
+    const { userId, username } = socket.handshake.auth;
 
     if (!userId || !username) {
       return next(new Error("Authentication error"));
     }
 
-    // Attach user data to socket
+    // Log the connection attempt
+    console.log(`Socket connection attempt - User: ${username} (${userId})`);
+
     socket.userId = userId;
     socket.username = username;
     next();
   });
 
   io.on("connection", (socket) => {
-    console.log(`A user connected: ${socket.username} (${socket.userId})`);
+    console.log(
+      `✅ Connection established - ${socket.username} (${socket.userId})`
+    );
+    console.log("A user connected:", socket.id); // Log the socket ID
 
-    // Join a specific room
+    // Handle join room event
     socket.on("join room", async (roomData) => {
       const { roomId, userId, username } = roomData;
 
-      // Verify the user data matches the socket auth
+      if (!roomId || !userId || !username) {
+        console.error("Missing required room data:", {
+          roomId,
+          userId,
+          username,
+        });
+        return;
+      }
+
       if (userId !== socket.userId || username !== socket.username) {
         console.error("User data mismatch");
         return;
       }
 
       try {
-        // Check if user is actually part of this session
         const session = await Session.findById(roomId);
         if (!session) {
           console.error("Session not found");
           return;
         }
 
-        // Check if user is either the host or a participant
-        const isHost = session.hostId.toString() === userId;
+        // Host assignment
+        let isHost = false;
+        if (!session.hostId) {
+          session.hostId = userId;
+          isHost = true;
+          await session.save();
+        } else {
+          isHost = session.hostId.toString() === userId;
+        }
+
         const isParticipant = session.participants.some(
           (p) => p.toString() === userId
         );
+        if (!isParticipant) {
+          session.participants.push(userId);
+          await session.save();
+        }
 
         if (!isHost && !isParticipant) {
           console.error("User not authorized to join this session");
           return;
         }
 
-        // Leave all current rooms except the socket's own room
+        // Leave previous rooms (except their own socket room)
         socket.rooms.forEach((room) => {
           if (room !== socket.id) {
             socket.leave(room);
@@ -64,15 +87,15 @@ export function initSocket(server) {
         socket.join(roomId);
         console.log(`User ${username} joined room: ${roomId}`);
 
-        // Notify others in the room
+        // Notify others
         socket.to(roomId).emit("user joined", {
-          userId: userId,
-          username: username,
+          userId,
+          username,
           timestamp: new Date(),
-          isHost: isHost,
+          isHost,
         });
 
-        // Send current participants to the new user
+        // Emit participant list to all
         const room = io.sockets.adapter.rooms.get(roomId);
         if (room) {
           const participants = Array.from(room)
@@ -90,17 +113,39 @@ export function initSocket(server) {
               };
             })
             .filter((p) => p && p.userId && p.username);
-          socket.emit("room participants", participants);
+
+          io.to(roomId).emit("room participants", {
+            participants,
+            totalParticipants: participants.length,
+          });
         }
       } catch (error) {
         console.error("Error joining room:", error);
       }
     });
 
-    // Handle chat messages
+    // Start session event - emitted when host clicks "Start"
+    socket.on("start session", async (roomId) => {
+      try {
+        const session = await Session.findById(roomId);
+        if (!session) {
+          console.error("Session not found");
+          return;
+        }
+
+        // Emit to all clients (including the host) that the session has started
+        io.to(roomId).emit("session started", { roomId });
+
+        // Log that the session started
+        console.log(`Session started for room: ${roomId}`);
+      } catch (error) {
+        console.error("Error starting session:", error);
+      }
+    });
+
+    // Chat message handler
     socket.on("chat message", async (data) => {
       try {
-        // Verify the sender and their session participation
         const session = await Session.findById(data.roomId);
         if (!session) return;
 
@@ -114,7 +159,6 @@ export function initSocket(server) {
           return;
         }
 
-        // Verify the sender identity
         if (
           data.userId !== socket.userId ||
           data.username !== socket.username
@@ -129,17 +173,16 @@ export function initSocket(server) {
           userId: socket.userId,
           username: socket.username,
           timestamp: new Date(),
-          isHost: isHost,
+          isHost,
         });
       } catch (error) {
         console.error("Error handling message:", error);
       }
     });
 
-    // Handle typing notification
+    // Typing handler
     socket.on("typing", async (data) => {
       try {
-        // Verify the sender and their session participation
         const session = await Session.findById(data.roomId);
         if (!session) return;
 
@@ -158,23 +201,56 @@ export function initSocket(server) {
         socket.to(data.roomId).emit("typing", {
           username: socket.username,
           isTyping: data.isTyping,
-          isHost: isHost,
+          isHost,
         });
       } catch (error) {
         console.error("Error handling typing notification:", error);
       }
     });
 
-    // Handle disconnection
-    socket.on("disconnect", () => {
+    // Disconnect handler
+    socket.on("disconnect", async () => {
       console.log(`User disconnected: ${socket.username}`);
-      socket.rooms.forEach((room) => {
-        if (room !== socket.id) {
-          socket.to(room).emit("user left", {
-            userId: socket.userId,
-            username: socket.username,
-            timestamp: new Date(),
-          });
+
+      socket.rooms.forEach(async (roomId) => {
+        if (roomId !== socket.id) {
+          try {
+            const session = await Session.findById(roomId);
+            if (!session) return;
+
+            const room = io.sockets.adapter.rooms.get(roomId);
+            if (room) {
+              const participants = Array.from(room)
+                .map((socketId) => {
+                  const participantSocket = io.sockets.sockets.get(socketId);
+                  if (!participantSocket) return null;
+
+                  const isParticipantHost =
+                    session.hostId.toString() === participantSocket.userId;
+
+                  return {
+                    userId: participantSocket.userId,
+                    username: participantSocket.username,
+                    isHost: isParticipantHost,
+                  };
+                })
+                .filter((p) => p && p.userId && p.username);
+
+              io.to(roomId).emit("room participants", {
+                participants,
+                totalParticipants: participants.length,
+              });
+            }
+
+            // Notify others
+            socket.to(roomId).emit("user left", {
+              userId: socket.userId,
+              username: socket.username,
+              timestamp: new Date(),
+            });
+          } catch (err) {
+            console.error("Error handling disconnect:", err);
+          }
         }
       });
     });

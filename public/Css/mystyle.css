@@ -14,10 +14,10 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 15px 15px 15px;/* top right bottom left */
+  padding: 15px; /* Consistent padding for all sides */
   background: rgba(0, 0, 0, 0.6); /* Semi-transparent black */
   backdrop-filter: blur(10px); /* Frosted glass effect */
-  border-bottom: 2px solid rgb(0, 0, 0);
+  border-bottom: 1px solid rgb(0, 0, 0); /* Thinner border */
 }
 
 /* Logo */

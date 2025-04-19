@@ -21,9 +21,6 @@ import {
   redirectIfAuthenticated,
 } from "../middlewares/Authentication.js";
 
-// GET routes
-//router.get("/login", redirectIfAuthenticated, getLoginPage);
-
 router.get("/login", (req, res, next) => {
   // Clear any existing session when accessing login page
   if (req.isAuthenticated()) {
@@ -62,22 +59,24 @@ router.get('/logout', (req, res) => {
 
 router.post("/login", (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {
-    if (err) return next(err);
-
-    // If no user is found, render the login page with an error message
-    if (!user) {
-      return res.render("login", {
-        user: null, // user is null if authentication fails
-        error: "Invalid username or password", // display error message
-      });
+    if (err || !user) {
+      return res.redirect("/login");
     }
 
-    // If the user is found, log them in
     req.logIn(user, (err) => {
-      if (err) return next(err);
+      if (err) {
+        return next(err);
+      }
 
-      // Redirect the user to their logged-in page
-      return res.redirect("/loggedin");
+      req.session.user = {
+        _id: user._id,
+        username: user.username,
+        profilePicture: user.profilePicture,
+      };
+
+      console.log("User logged in:", req.session.user);
+
+      return res.redirect("/loggedin"); // or wherever you go after login
     });
   })(req, res, next);
 });

@@ -17,15 +17,22 @@ const sessionSchema = new mongoose.Schema({
 });
 
 // Generate unique access code if not provided
-sessionSchema.pre("validate", function (next) {
+sessionSchema.pre("validate", async function (next) {
   if (!this.accessCode) {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     let code = "";
     for (let i = 0; i < 6; i++) {
       code += chars.charAt(Math.floor(Math.random() * chars.length));
     }
+    // Ensure uniqueness of the access code
+    const existingSession = await mongoose
+      .model("Session")
+      .findOne({ accessCode: code });
+    if (existingSession) {
+      return next(new Error("Access code already exists. Try again."));
+    }
     this.accessCode = code;
-    console.log("Generated access code:", this.accessCode);
+    console.log("Generated unique access code:", this.accessCode);
   }
   next();
 });

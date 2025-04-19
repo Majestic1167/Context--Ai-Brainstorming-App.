@@ -7,27 +7,25 @@
     <link rel="stylesheet" href="/Css/joinedsession.css" />
     <script src="/socket.io/socket.io.js"></script>
     <!-- Link to external JavaScript file -->
-    <script src="/js/session.js" defer></script>
+   
   </head>
   <body>
     <%- include('partials/header') %>
 
     <div class="session-container" data-session-id="<%= session._id %>">
       <!-- Participants List Section -->
-      <div class="participants-list" id="participants-list">
-        <h3>Participants (<span id="participant-count">0</span>)</h3>
-        <!-- Initial host participant -->
-        <div class="participant host">
-          <img
-            src="<%= user.profilePicture || '/images/default-avatar.png' %>"
-            alt="Host"
-            class="participant-avatar"
-          />
-          <div class="participant-info">
-            <span class="username"><%= user.username %></span>
-            <span class="badge host-badge">Host</span>
-          </div>
+      <div class="participant host">
+        <img
+          src="<%= session.hostId && session.hostId.profilePicture ? session.hostId.profilePicture : '/images/default-avatar.png' %>"
+          alt="Host"
+          class="participant-avatar"
+        />
+        <div class="participant-info">
+          <span class="username"><%= session.hostId && session.hostId.username ? session.hostId.username : 'Unknown User' %></span>
+          <span class="badge host-badge">Host</span>
         </div>
+      </div>
+      
       </div>
 
       <div class="header-section">
@@ -83,4 +81,7 @@
       </div>
     </div>
   </body>
+  <script type="module" src="/js/session.js" defer></script>
+  <script type="module" src="/socket.io/socket.io.js"></script>
+  <script type="module" src="/js/timer.js" defer></script>
 </html>

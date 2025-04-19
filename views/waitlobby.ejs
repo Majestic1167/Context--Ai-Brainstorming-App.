@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Session – <%= session.sessionName %></title>
+    <link rel="stylesheet" href="/Css/round1.css" />
+    <link rel="stylesheet" href="/Css/joinedsession.css" />
+  </head>
+  <body>
+    <%- include('partials/header') %>
+
+    <div
+      class="joined-session-container"
+      id="joined-session-container"
+      data-session-id="<%= session._id %>"
+      data-user-id="<%= user._id %>"
+      data-username="<%= user.username %>"
+    >
+      <div class="joined-header-section">
+        <div class="joined-timer" id="session-timer">1:30</div>
+        <div class="joined-session-name"><%= session.sessionName %></div>
+        <div class="joined-theme"><%= session.theme %></div>
+      </div>
+
+      <!-- Participants (will be filled by socket) -->
+      <div class="participants-list" id="participants-list">
+        <h3>Participants (<span id="participant-count">0</span>)</h3>
+        <!-- List will be dynamically injected -->
+      </div>
+
+      <!-- Main Grid -->
+      <div class="joined-content-grid">
+        <div class="joined-chat-section">
+          <h3 class="joined-chat-title">Chat</h3>
+          <div class="joined-chat-box" id="chat-messages">
+            <p class="joined-placeholder-text">Start writing your ideas</p>
+          </div>
+
+          <% if (isHost) { %>
+          <p>You are the host!</p>
+          <div class="joined-wait-message">
+            <button id="start-session-btn" data-session-id="<%= session._id %>">
+              PRESS TO START
+            </button>
+          </div>
+          <% } else { %>
+          <div class="joined-wait-message">WAIT FOR THE HOST TO START</div>
+          <% } %>
+
+          <div id="typing-indicator" style="display: none"></div>
+        </div>
+
+        <div class="joined-brainstorming-section">
+          <h3 class="joined-brainstorming-title">Brainstorming Ideas</h3>
+          <div class="joined-ideas-box" id="ideas-container">
+            <!-- Ideas will be displayed here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Next Round Button (Initially hidden) -->
+      <div id="next-round-btn" style="display: none">
+        <button>Next Round</button>
+      </div>
+    </div>
+    <script type="module" src="/socket.io/socket.io.js"></script>
+    <script type="module" src="/js/session.js" defer></script>
+  </body>
+</html>

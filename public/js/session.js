@@ -1,3 +1,9 @@
+import {
+  addParticipantToDOM,
+  removeParticipantFromDOM,
+  renderParticipantsList,
+} from "../js/ui.js";
+
 // Socket.IO connection
 let socket;
 
@@ -8,11 +14,17 @@ let username;
 
 // Initialize session
 function initializeSession() {
-  // Get data from HTML attributes
   const container = document.getElementById("joined-session-container");
+  if (!container) return;
+
   sessionId = container.getAttribute("data-session-id");
   userId = container.getAttribute("data-user-id");
   username = container.getAttribute("data-username");
+
+  if (!sessionId || !userId || !username) {
+    console.error("Missing session or user data");
+    return;
+  }
 
   // Disconnect existing socket if any
   if (socket) {
@@ -27,7 +39,7 @@ function initializeSession() {
     },
   });
 
-  // Set up socket event listeners
+  // Setup event listeners
   setupSocketListeners();
 
   // Join the session room
@@ -38,8 +50,15 @@ function initializeSession() {
   });
 }
 
+// Set up all socket event listeners
 function setupSocketListeners() {
-  // Handle incoming messages
+  let participants = []; // Initialize participant array
+
+  socket.on("connect", () => {
+    console.log(" Connected to socket server with ID:", socket.id);
+  });
+
+  // Chat message received
   socket.on("chat message", (data) => {
     const chatMessages = document.getElementById("chat-messages");
     if (chatMessages) {
@@ -50,64 +69,41 @@ function setupSocketListeners() {
         <small>${new Date(data.timestamp).toLocaleTimeString()}</small>
       `;
       chatMessages.appendChild(messageElement);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-  });
-
-  // Handle user joining
-  socket.on("user joined", (data) => {
-    const participantsList = document.getElementById("participants-list");
-    if (participantsList) {
-      const participantElement = document.createElement("div");
-      participantElement.className = "participant";
-      participantElement.innerHTML = `
-        <img src="/images/default-avatar.png" alt="Participant" class="participant-avatar">
-        <div class="participant-info">
-          <span class="username">${data.username}</span>
-        </div>
-      `;
-      participantsList.appendChild(participantElement);
-      updateParticipantCount();
-    }
-  });
-
-  // Handle user leaving
-  socket.on("user left", (data) => {
-    const participantsList = document.getElementById("participants-list");
-    if (participantsList) {
-      const participantElements =
-        participantsList.getElementsByClassName("participant");
-      for (let element of participantElements) {
-        if (element.querySelector(".username").textContent === data.username) {
-          element.remove();
-          break;
-        }
-      }
-      updateParticipantCount();
-    }
-  });
-
-  // Handle room participants update
-  socket.on("room participants", (participants) => {
-    const participantsList = document.getElementById("participants-list");
-    if (participantsList) {
-      participantsList.innerHTML = ""; // Clear existing participants
-      participants.forEach((participant) => {
-        const participantElement = document.createElement("div");
-        participantElement.className = "participant";
-        participantElement.innerHTML = `
-          <img src="/images/default-avatar.png" alt="Participant" class="participant-avatar">
-          <div class="participant-info">
-            <span class="username">${participant.username}</span>
-          </div>
-        `;
-        participantsList.appendChild(participantElement);
+      chatMessages.scrollTo({
+        top: chatMessages.scrollHeight,
+        behavior: "smooth",
       });
-      updateParticipantCount();
     }
   });
 
-  // Handle typing notifications
+  // User joined
+  socket.on("user joined", (data) => {
+    console.log("User joined:", data);
+    participants.push(data); // still update the array
+    addParticipantToDOM(data); // this internally updates participantCount and DOM
+
+    const chatMessages = document.getElementById("chat-messages");
+    if (chatMessages) {
+      const msg = document.createElement("div");
+      msg.className = "system-message";
+      msg.textContent = `${data.username} has joined the session.`;
+      chatMessages.appendChild(msg);
+    }
+  });
+
+  socket.on("user left", (data) => {
+    console.log("User left:", data);
+    participants = participants.filter((p) => p.userId !== data.userId);
+    removeParticipantFromDOM(data.username); // this also internally updates participantCount and DOM
+  });
+
+  socket.on("room participants", (newParticipants) => {
+    console.log("Participants updated:", newParticipants);
+    participants = newParticipants;
+    renderParticipantsList(participants); // This handles count update too
+  });
+
+  // Typing notification
   socket.on("typing", (data) => {
     const typingIndicator = document.getElementById("typing-indicator");
     if (typingIndicator) {
@@ -119,15 +115,29 @@ function setupSocketListeners() {
       }
     }
   });
-}
 
-// Update participant count
-function updateParticipantCount() {
-  const countElement = document.getElementById("participant-count");
-  if (countElement) {
-    const participants = document.getElementsByClassName("participant");
-    countElement.textContent = participants.length;
-  }
+  socket.on("timer finished", function (data) {
+    if (
+      data.sessionId ===
+      document.getElementById("joined-session-container").dataset.sessionId
+    ) {
+      alert("Time's up! The round has ended.");
+    }
+  });
+
+  socket.on("next round", function (data) {
+    if (
+      data.sessionId ===
+      document.getElementById("joined-session-container").dataset.sessionId
+    ) {
+      location.reload(); // Example: reload for a fresh start
+    }
+  });
+
+  // Optional error logging
+  socket.on("connect_error", (err) => {
+    console.error("Socket connection error:", err);
+  });
 }
 
 // Chat form handling
@@ -138,7 +148,7 @@ if (chatForm && chatInput) {
   chatForm.addEventListener("submit", (e) => {
     e.preventDefault();
     const message = chatInput.value.trim();
-    if (message) {
+    if (message && socket && socket.connected) {
       socket.emit("chat message", {
         roomId: sessionId,
         message: message,
@@ -149,14 +159,19 @@ if (chatForm && chatInput) {
     }
   });
 
-  // Typing indicator
+  // Debounced typing notification
+  let isTyping = false;
   let typingTimeout;
+
   chatInput.addEventListener("input", () => {
-    socket.emit("typing", {
-      roomId: sessionId,
-      username: username,
-      isTyping: true,
-    });
+    if (!isTyping) {
+      socket.emit("typing", {
+        roomId: sessionId,
+        username: username,
+        isTyping: true,
+      });
+      isTyping = true;
+    }
 
     clearTimeout(typingTimeout);
     typingTimeout = setTimeout(() => {
@@ -165,37 +180,50 @@ if (chatForm && chatInput) {
         username: username,
         isTyping: false,
       });
+      isTyping = false;
     }, 1000);
   });
 }
 
-// Clean up function
 function cleanup() {
   if (socket) {
+    socket.removeAllListeners();
     socket.disconnect();
     socket = null;
   }
 }
 
-// Toggle Settings Menu Visibility
-document.getElementById("settings-btn").addEventListener("click", function () {
-  const settingsMenu = document.getElementById("settings-menu");
-  settingsMenu.style.display =
-    settingsMenu.style.display === "none" ? "block" : "none";
+document.getElementById("start-session-btn")?.addEventListener("click", () => {
+  const sessionId = document
+    .getElementById("start-session-btn")
+    .getAttribute("data-session-id");
+
+  // ✅ Emit to server that session has started
+  socket.emit("start-session", { sessionId });
+
+  // ✅ Redirect host immediately
+  window.location.href = `/hoststartedsession?sessionId=${sessionId}`;
 });
 
-// Host-specific functionality for terminating and restarting session
-document.getElementById("terminate-session").addEventListener("click", () => {
-  socket.emit("terminate session", {
-    sessionId: document.querySelector(".session-container").dataset.sessionId,
+document.addEventListener("DOMContentLoaded", function () {
+  const socket = io();
+
+  socket.on("start timer", () => {
+    startTimer(socket); // Now calling it from timer.js
   });
+
+  const nextRoundBtn = document.getElementById("next-round-btn");
+  if (nextRoundBtn) {
+    nextRoundBtn.addEventListener("click", function () {
+      socket.emit("next round", {
+        sessionId: document.getElementById("joined-session-container").dataset
+          .sessionId,
+      });
+    });
+  }
 });
 
-document.getElementById("restart-session").addEventListener("click", () => {
-  socket.emit("restart session", {
-    sessionId: document.querySelector(".session-container").dataset.sessionId,
-  });
-});
-
-// Export functions
+// Export cleanup globally if needed
 window.cleanup = cleanup;
+
+document.addEventListener("DOMContentLoaded", initializeSession);

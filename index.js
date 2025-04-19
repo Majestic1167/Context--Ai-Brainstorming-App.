@@ -13,10 +13,10 @@ import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 dotenv.config();
 
+connectDB();
+
 import http from "http"; // For creating an HTTP server
 import { initSocket } from "./config/socketio.js"; // Import socket setup
-
-import { injectUser } from "./middlewares/user.js";
 
 // Initialize the express app
 const app = express();
@@ -28,19 +28,17 @@ const __dirname = path.dirname(__filename);
 // Configure session middleware (should be before passport)
 app.use(
   session({
-    secret: process.env.PASSPORTSECRETKEY,
+    secret: process.env.PASSPORTSECRETKEY, // Use an environment variable for security
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false,
-      maxAge: 1000 * 60 * 60 * 24, // 30 days
+      secure: false, // Should be true in production with HTTPS
+      maxAge: 1000 * 60 * 60 * 24, // Session duration (1 day)
     },
     rolling: true,
-    name: "sessionID",
+    name: "sessionID", // You can set a custom name for the session cookie
   })
 );
-
-app.use(express.urlencoded({ extended: true }));
 
 // Configure flash middleware
 app.use(flash());
@@ -94,16 +92,6 @@ server.listen(process.env.PORT, (err) => {
   if (err) console.error(err);
   else console.log(`Server start at ${process.env.PORT}`);
 });
-
-app.use(injectUser);
-
-// Add this middleware here
-app.use((req, res, next) => {
-  res.locals.user = req.user || null;
-  next();
-});
-
-connectDB();
 
 app.delete("/terminate-session/:sessionId", (req, res) => {
   // Handle session termination logic

@@ -11,7 +11,12 @@ export function ensureAuthenticated(req, res, next) {
 
 export async function ensureHost(req, res, next) {
   try {
-    const sessionId = req.params.sessionId || req.query.sessionId;
+    const sessionId = req.query.sessionId; // Always use query string
+
+    if (!req.user || !req.user._id) {
+      return res.status(401).send("User not authenticated");
+    }
+
     const session = await Session.findById(sessionId);
 
     if (!session) {
@@ -24,7 +29,7 @@ export async function ensureHost(req, res, next) {
         .send("Access denied. Only the host can perform this action.");
     }
 
-    // Attach the session to req for use in controller if needed
+    // Attach the session to req for future use
     req.sessionData = session;
 
     next();
