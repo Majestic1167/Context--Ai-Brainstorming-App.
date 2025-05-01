@@ -30,7 +30,7 @@
       <% if (typeof user !== 'undefined' && user) { %>
       <div class="profile-container">
         <img
-          src="<%= user.profilePicture || '/images/user.png' %>"
+          src="<%= user && user.profilePicture ? user.profilePicture : '/images/user.png' %>"
           alt="Profile"
           class="profile-icon"
           id="profile-icon"

@@ -19,20 +19,25 @@
         <div class="error-message"><%= error %></div>
         <% } %>
 
-        <form action="/signup" method="POST" class="signup-form">
-          <!-- Add the Name input field -->
-
+        <form
+          action="/signup"
+          method="POST"
+          class="signup-form"
+          enctype="multipart/form-data"
+        >
+          <!-- Name input field -->
           <input type="text" name="name" placeholder="Name" required />
 
+          <!-- Username -->
           <input type="text" name="username" placeholder="Username" required />
-          <input
-            type="email"
-            name="email"
-            placeholder="Email or phone number"
-            required
-          />
+
+          <!-- Email -->
+          <input type="email" name="email" placeholder="Email" required />
+
+          <!-- Phone -->
           <input type="text" name="phone" placeholder="Phone number" required />
 
+          <!-- Password fields -->
           <input
             type="password"
             name="password"
@@ -46,7 +51,7 @@
             required
           />
 
-          <!-- New fields -->
+          <!-- Profile Picture -->
           <div class="form-group">
             <label for="profilePicture">Profile Picture (Optional)</label>
             <input
@@ -57,6 +62,7 @@
             />
           </div>
 
+          <!-- Bio -->
           <div class="form-group">
             <label for="bio">Bio (Optional)</label>
             <textarea
@@ -67,9 +73,10 @@
             ></textarea>
           </div>
 
+          <!-- Terms checkbox -->
           <div class="checkbox-container">
-            <input type="checkbox" required />
-            <label>Accept terms and policy</label>
+            <input type="checkbox" id="terms" name="terms" required />
+            <label for="terms">Accept terms and policy</label>
           </div>
 
           <button type="submit">Sign Up</button>

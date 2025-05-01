@@ -17,41 +17,34 @@ export async function postCreateSession(req, res) {
 
     const { sessionName, theme, timer } = req.body;
 
-    // Debugging: Log user ID to ensure it's correct
-    console.log("Authenticated User ID:", req.session.user._id);
-
-    // Parse timer and default to 90 if invalid
+    // Parse timer input from form
     const parsedTimer = parseInt(timer, 10);
-    const finalTimer = isNaN(parsedTimer) ? 90 : parsedTimer;
+
+    // ✅ Use the exact time the host entered
+    const selectedTimer = parsedTimer;
 
     // Create a new session
     const newSession = new Session({
       sessionName,
       theme,
-      timer: finalTimer, // Use finalTimer
-      hostId: req.session.user._id, // Set the host as the logged-in user
-      participants: [req.session.user._id], // Host is automatically a participant
+      timer: selectedTimer, // Use the exact time entered by the host
+      hostId: req.session.user._id,
+      participants: [req.session.user._id],
     });
 
-    // Log the session before saving to ensure it's correct
-    console.log("New session before saving:", newSession);
-
-    // Save the new session
+    // Save the session
     const savedSession = await newSession.save();
 
-    // Populate the session with host and participant data
+    // Populate host and participants for rendering
     const populatedSession = await Session.findById(savedSession._id)
       .populate("hostId", "username profilePicture")
       .populate("participants", "username profilePicture");
 
-    // Log the populated session for debugging
-    console.log("Populated session:", populatedSession);
-
-    // Render the session page with populated data
+    // Render the waiting lobby with session info
     res.render("waitlobby", {
       session: populatedSession,
       user: req.session.user,
-      isHost: true, // Ensure the user is the host
+      isHost: true,
     });
   } catch (error) {
     console.error("Error creating session:", error);
@@ -80,15 +73,15 @@ export async function getFirstRoundHostPage(req, res) {
       return res.status(404).send("Session not found");
     }
 
-    // Log the session data to ensure it's correct
-    console.log("Session found:", session);
-
     // Render the session page for the host
     res.render("waitlobby", {
       session,
+
+      participants: session.participants,
+
       user: req.session.user || {
         username: "Unknown User",
-        profilePicture: "/images/default-avatar.png",
+        profilePicture: "/images/profilepictures/default.jpg",
       },
       isHost: req.session.user && req.session.user._id.equals(session.hostId), // Ensure user is the host
     });
@@ -122,15 +115,6 @@ export async function getNextRoundPage(req, res) {
     res.status(500).send("Error loading next round");
   }
 }
-
-/*
-// Render the join session page
-export function getjoinsessionpage(req, res) {
-  if (!req.isAuthenticated()) {
-    return res.redirect("/login");
-  }
-  res.render("joinsession");
-}*/
 
 export async function getjoinsessionpage(req, res) {
   if (!req.isAuthenticated()) {

@@ -4,186 +4,271 @@ import {
   renderParticipantsList,
 } from "../js/ui.js";
 
-// Socket.IO connection
 let socket;
+let sessionId, userId, username;
 
-// Session variables
-let sessionId;
-let userId;
-let username;
-
-// Initialize session
 function initializeSession() {
   const container = document.getElementById("joined-session-container");
   if (!container) return;
 
-  sessionId = container.getAttribute("data-session-id");
-  userId = container.getAttribute("data-user-id");
-  username = container.getAttribute("data-username");
+  sessionId = container.dataset.sessionId;
+  userId = container.dataset.userId;
+  username = container.dataset.username;
 
   if (!sessionId || !userId || !username) {
-    console.error("Missing session or user data");
+    console.error("Missing session data");
     return;
   }
 
-  // Disconnect existing socket if any
-  if (socket) {
-    socket.disconnect();
-  }
+  if (socket) socket.disconnect();
 
-  // Create new socket connection
   socket = io({
     auth: {
-      userId: userId,
-      username: username,
+      userId,
+      username,
     },
   });
 
-  // Setup event listeners
+  socket.emit("join room", { roomId: sessionId, userId, username });
   setupSocketListeners();
-
-  // Join the session room
-  socket.emit("join room", {
-    roomId: sessionId,
-    userId: userId,
-    username: username,
-  });
 }
 
-// Set up all socket event listeners
+let countdownInterval; // So we can clear it between rounds if needed
+
+function startRoundTimer(timeLeft) {
+  const timerDisplay = document.getElementById("session-timer");
+
+  const renderTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    timerDisplay.textContent = `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  renderTime(timeLeft); // Initial display
+
+  clearInterval(countdownInterval); // Clear any existing timer
+  countdownInterval = setInterval(() => {
+    timeLeft--;
+    if (timeLeft >= 0) {
+      renderTime(timeLeft);
+    } else {
+      clearInterval(countdownInterval);
+      socket.emit("timer-finished"); // Let the server know
+    }
+  }, 1000);
+}
+
+// ---------------------- SOCKET LISTENERS ----------------------
+
 function setupSocketListeners() {
-  let participants = []; // Initialize participant array
+  let participants = [];
+
+  let initialRenderDone = false; // ← NEW FLAG
 
   socket.on("connect", () => {
-    console.log(" Connected to socket server with ID:", socket.id);
+    console.log("Connected:", socket.id);
   });
 
-  // Chat message received
-  socket.on("chat message", (data) => {
-    const chatMessages = document.getElementById("chat-messages");
-    if (chatMessages) {
-      const messageElement = document.createElement("div");
-      messageElement.className = "message";
-      messageElement.innerHTML = `
-        <strong>${data.username}</strong>: ${data.message}
-        <small>${new Date(data.timestamp).toLocaleTimeString()}</small>
-      `;
-      chatMessages.appendChild(messageElement);
-      chatMessages.scrollTo({
-        top: chatMessages.scrollHeight,
-        behavior: "smooth",
-      });
+  /*
+  socket.on("room participants", (data) => {
+    participants = data;
+    renderParticipantsList(participants);
+  });*/
+
+  socket.on("room participants", (data) => {
+    console.log("Received room participants:", data);
+    participants = Array.isArray(data) ? data : data.participants || [];
+
+    // only call renderParticipantsList after the first dynamic join/leave
+    if (initialRenderDone) {
+      renderParticipantsList(participants);
     }
   });
 
-  // User joined
   socket.on("user joined", (data) => {
-    console.log("User joined:", data);
-    participants.push(data); // still update the array
-    addParticipantToDOM(data); // this internally updates participantCount and DOM
-
-    const chatMessages = document.getElementById("chat-messages");
-    if (chatMessages) {
-      const msg = document.createElement("div");
-      msg.className = "system-message";
-      msg.textContent = `${data.username} has joined the session.`;
-      chatMessages.appendChild(msg);
-    }
+    participants.push(data);
+    addParticipantToDOM(data);
+    initialRenderDone = true; // ← MARK that we’ve now done a dynamic update
+    addSystemMessage(`${data.username} has joined.`);
   });
 
   socket.on("user left", (data) => {
-    console.log("User left:", data);
     participants = participants.filter((p) => p.userId !== data.userId);
-    removeParticipantFromDOM(data.username); // this also internally updates participantCount and DOM
+    removeParticipantFromDOM(data.username);
+    initialRenderDone = true; // ← also mark here
+    addSystemMessage(`${data.username} has left.`);
   });
 
-  socket.on("room participants", (newParticipants) => {
-    console.log("Participants updated:", newParticipants);
-    participants = newParticipants;
-    renderParticipantsList(participants); // This handles count update too
+  socket.on("chat message", (data) => {
+    const chatMessages = document.getElementById("chat-messages");
+    if (!chatMessages) return;
+
+    const msg = document.createElement("div");
+    msg.className = "message";
+    msg.innerHTML = `
+      <strong>${data.username}</strong>: ${data.message}
+      <small>${new Date(data.timestamp).toLocaleTimeString()}</small>
+    `;
+    chatMessages.appendChild(msg);
+    chatMessages.scrollTo({
+      top: chatMessages.scrollHeight,
+      behavior: "smooth",
+    });
   });
 
-  // Typing notification
+  socket.on("receive-idea", ({ word, username }) => {
+    const div = document.createElement("div");
+    div.className = "idea-entry";
+    div.textContent = `${username}: ${word}`;
+    ideasContainer?.appendChild(div);
+  });
+
   socket.on("typing", (data) => {
-    const typingIndicator = document.getElementById("typing-indicator");
-    if (typingIndicator) {
-      if (data.isTyping) {
-        typingIndicator.textContent = `${data.username} is typing...`;
-        typingIndicator.style.display = "block";
-      } else {
-        typingIndicator.style.display = "none";
-      }
+    const indicator = document.getElementById("typing-indicator");
+    if (indicator) {
+      indicator.textContent = data.isTyping
+        ? `${data.username} is typing...`
+        : "";
+      indicator.style.display = data.isTyping ? "block" : "none";
     }
   });
 
-  socket.on("timer finished", function (data) {
-    if (
-      data.sessionId ===
-      document.getElementById("joined-session-container").dataset.sessionId
-    ) {
-      alert("Time's up! The round has ended.");
+  socket.on(
+    "session-started",
+    ({ sessionName, theme, timer, round = 1, participants }) => {
+      // Remove the waiting message and start button
+      document.querySelector(".joined-wait-message")?.remove();
+      document.getElementById("start-session-btn")?.remove();
+
+      // Hide the access code if it exists
+      const accessCodeEl = document.querySelector(".joined-access-code");
+      if (accessCodeEl) accessCodeEl.style.display = "none";
+
+      // Display the brainstorming and chat sections
+      document.querySelector(".joined-brainstorming-section").style.display =
+        "block";
+      document.querySelector(".joined-chat-section").style.display = "block";
+
+      startRoundTimer(timer);
+
+      // Render participants list with usernames and profile pictures
+      renderParticipantsList(participants);
     }
+  );
+
+  document
+    .getElementById("start-session-btn")
+    ?.addEventListener("click", () => {
+      const startBtn = document.getElementById("start-session-btn");
+      const sessionId = startBtn.getAttribute("data-session-id");
+      const timer = parseInt(startBtn.getAttribute("data-timer")); // Get session timer
+
+      // Emit event to server with timer value
+      socket.emit("start-session", { sessionId, timer });
+    });
+
+  socket.on("timer finished", () => {
+    alert("Time's up! The round has ended.");
   });
 
-  socket.on("next round", function (data) {
-    if (
-      data.sessionId ===
-      document.getElementById("joined-session-container").dataset.sessionId
-    ) {
-      location.reload(); // Example: reload for a fresh start
-    }
-  });
-
-  // Optional error logging
   socket.on("connect_error", (err) => {
-    console.error("Socket connection error:", err);
+    console.error("Socket error:", err.message);
   });
 }
 
-// Chat form handling
+// ---------------------- CHAT FORM ----------------------
+
 const chatForm = document.getElementById("chat-form");
 const chatInput = document.getElementById("chat-input");
 
 if (chatForm && chatInput) {
   chatForm.addEventListener("submit", (e) => {
     e.preventDefault();
-    const message = chatInput.value.trim();
-    if (message && socket && socket.connected) {
-      socket.emit("chat message", {
-        roomId: sessionId,
-        message: message,
-        userId: userId,
-        username: username,
-      });
-      chatInput.value = "";
-    }
+    const msg = chatInput.value.trim();
+    if (!msg || !socket?.connected) return;
+
+    socket.emit("chat message", {
+      roomId: sessionId,
+      message: msg,
+      userId,
+      username,
+    });
+
+    chatInput.value = "";
   });
 
-  // Debounced typing notification
   let isTyping = false;
   let typingTimeout;
 
   chatInput.addEventListener("input", () => {
     if (!isTyping) {
-      socket.emit("typing", {
-        roomId: sessionId,
-        username: username,
-        isTyping: true,
-      });
+      socket.emit("typing", { roomId: sessionId, username, isTyping: true });
       isTyping = true;
     }
 
     clearTimeout(typingTimeout);
     typingTimeout = setTimeout(() => {
-      socket.emit("typing", {
-        roomId: sessionId,
-        username: username,
-        isTyping: false,
-      });
+      socket.emit("typing", { roomId: sessionId, username, isTyping: false });
       isTyping = false;
     }, 1000);
   });
 }
+
+// ---------------------- HELPERS ----------------------
+
+function addSystemMessage(text) {
+  const chatMessages = document.getElementById("chat-messages");
+  if (!chatMessages) return;
+
+  const msg = document.createElement("div");
+  msg.className = "system-message";
+  msg.textContent = text;
+  chatMessages.appendChild(msg);
+}
+
+// ---------------------- BRAINSTORMING FORM ----------------------
+
+const ideaForm = document.getElementById("idea-form");
+const ideaInput = document.getElementById("idea-input");
+const ideaWarning = document.getElementById("idea-warning");
+const ideasContainer = document.getElementById("ideas-container");
+
+if (ideaForm && ideaInput && ideasContainer) {
+  ideaForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const word = ideaInput.value.trim();
+
+    // Allow only one word (no spaces)
+    if (word.includes(" ")) {
+      ideaWarning.style.display = "block";
+      return;
+    }
+
+    ideaWarning.style.display = "none";
+
+    // Emit idea
+    socket.emit("send-idea", {
+      word,
+      username,
+      sessionId,
+    });
+
+    ideaInput.value = "";
+  });
+}
+
+// Listen for button click to emit "nextRound"
+const nextRoundBtn = document.getElementById("next-round-button");
+if (nextRoundBtn) {
+  nextRoundBtn.addEventListener("click", () => {
+    const sessionId =
+      document.querySelector(".session-container").dataset.sessionId;
+    socket.emit("nextRound", { sessionId });
+  });
+}
+
+// ---------------------- CLEANUP ----------------------
 
 function cleanup() {
   if (socket) {
@@ -193,37 +278,6 @@ function cleanup() {
   }
 }
 
-document.getElementById("start-session-btn")?.addEventListener("click", () => {
-  const sessionId = document
-    .getElementById("start-session-btn")
-    .getAttribute("data-session-id");
-
-  // ✅ Emit to server that session has started
-  socket.emit("start-session", { sessionId });
-
-  // ✅ Redirect host immediately
-  window.location.href = `/hoststartedsession?sessionId=${sessionId}`;
-});
-
-document.addEventListener("DOMContentLoaded", function () {
-  const socket = io();
-
-  socket.on("start timer", () => {
-    startTimer(socket); // Now calling it from timer.js
-  });
-
-  const nextRoundBtn = document.getElementById("next-round-btn");
-  if (nextRoundBtn) {
-    nextRoundBtn.addEventListener("click", function () {
-      socket.emit("next round", {
-        sessionId: document.getElementById("joined-session-container").dataset
-          .sessionId,
-      });
-    });
-  }
-});
-
-// Export cleanup globally if needed
 window.cleanup = cleanup;
 
 document.addEventListener("DOMContentLoaded", initializeSession);

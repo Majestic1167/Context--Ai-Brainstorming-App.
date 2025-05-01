@@ -35,8 +35,9 @@ const userSchema = new mongoose.Schema(
     // Extra user info
     profilePicture: {
       type: String,
-      default: "https://via.placeholder.com/150",
+      default: "/images/profilepictures/default.jpg", // Default image path
     },
+
     bio: {
       type: String,
       default: "",

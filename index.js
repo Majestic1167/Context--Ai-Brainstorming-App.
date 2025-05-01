@@ -104,3 +104,8 @@ app.get("/restart-session", (req, res) => {
   // Handle session restart logic (e.g., reset session state)
   res.redirect("/create"); // Redirect to session creation page
 });
+
+app.use(
+  "/uploads/profilepictures",
+  express.static("public/images/profilepictures")
+);

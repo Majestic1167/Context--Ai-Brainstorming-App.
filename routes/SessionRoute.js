@@ -27,7 +27,6 @@ router.get("/getfirstround", ensureAuthenticated, getFirstRoundHostPage);
 
 router.get("/nextround", ensureAuthenticated, getNextRoundPage);
 
-// 1️⃣ Lobby (join) route
 router.get("/session/:sessionId", ensureAuthenticated, async (req, res) => {
   try {
     const sessionId = req.params.sessionId;
@@ -62,36 +61,23 @@ router.get("/session/:sessionId", ensureAuthenticated, async (req, res) => {
 });
 
 // Route to handle the "Start" button click
-router.post("/start-session/:roomId", async (req, res) => {
-  const { roomId } = req.params;
-
-  try {
-    // Find the session by roomId
-    const session = await Session.findById(roomId);
-    if (!session) {
-      return res.status(404).send("Session not found");
-    }
-
-    // Emit 'start session' event to the room using socket.io
-    const io = getIO();
-    io.to(roomId).emit("start session", roomId);
-
-    // Optionally, you can set session properties (e.g., session started time) here if needed
-    session.isStarted = true;
-    await session.save();
-
-    // Redirect or render the "session started" page for the host
-    res.redirect(`/session/${roomId}/hoststartedsession`);
-  } catch (error) {
-    console.error("Error starting session:", error);
-    res.status(500).send("Error starting session");
+router.post(
+  "/session/:sessionId/start",
+  ensureAuthenticated,
+  ensureHost,
+  async (req, res) => {
+    const roomId = req.params.sessionId;
+    //( flip session.status in DB)
+    getIO().to(roomId).emit("session started", { roomId });
+    // host redirect or just 200 OK:
+    return res.sendStatus(200);
   }
-});
+);
 
 router.get(
   "/hoststartedsession",
   ensureAuthenticated,
-  ensureHost,
+
   async (req, res) => {
     try {
       const session = await Session.findById(req.query.sessionId)

@@ -21,30 +21,43 @@ export function renderParticipantsList(data) {
   const listEl = document.getElementById("participants-list");
   if (!listEl) return;
 
-  // clear existing items
-  listEl.querySelectorAll(".participant").forEach((el) => el.remove());
-
-  // Determine array structure
   const participants = Array.isArray(data) ? data : data.participants || [];
 
-  // reset internal count
-  participantCount = participants.length;
+  // Keep the host element; only remove other participants
+  listEl
+    .querySelectorAll(".participant:not(.host)")
+    .forEach((el) => el.remove());
 
-  // render each participant
+  let count = 1; // start from 1 for the host
   participants.forEach((p) => {
+    if (p.isHost) {
+      const hostImg = listEl.querySelector(".participant.host img");
+      if (hostImg && p.profilePicture) {
+        hostImg.src = p.profilePicture;
+      }
+      return;
+    }
+
+    const profileSrc = p.profilePicture?.trim()
+      ? p.profilePicture
+      : "/images/profilepictures/default.jpg";
+
     const item = document.createElement("div");
-    item.className = `participant ${p.isHost ? "host" : ""}`;
+    item.className = "participant";
     item.innerHTML = `
-      <img src="/images/default-avatar.png" alt="Avatar" class="participant-avatar">
-      <div class="participant-info">
-        <span class="username">${p.username}</span>
-        ${p.isHost ? '<span class="host-badge">Host</span>' : ""}
-      </div>
+      <img 
+        src="${profileSrc}" 
+        onerror="this.onerror=null;this.src='/images/profilepictures/default.jpg';" 
+        alt="${p.username}" 
+        class="participant-avatar"
+      >
+      <span class="username">${p.username}</span>
     `;
     listEl.appendChild(item);
+    count++;
   });
 
-  updateParticipantCount(participantCount);
+  updateParticipantCount(count);
 }
 
 /**
@@ -56,16 +69,24 @@ export function addParticipantToDOM(participant) {
   const listEl = document.getElementById("participants-list");
   if (!listEl) return;
 
-  // avoid duplicates
   const exists = Array.from(listEl.getElementsByClassName("username")).some(
     (el) => el.textContent === participant.username
   );
   if (exists) return;
 
+  const profileImage = participant.profilePicture?.trim()
+    ? participant.profilePicture
+    : "/images/profilepictures/default.jpg";
+
   const item = document.createElement("div");
   item.className = `participant ${participant.isHost ? "host" : ""}`;
   item.innerHTML = `
-    <img src="/images/default-avatar.png" alt="Avatar" class="participant-avatar">
+    <img 
+      src="${profileImage}" 
+      alt="${participant.username}" 
+      class="participant-avatar"
+      onerror="this.onerror=null;this.src='/images/profilepictures/default.jpg';"
+    >
     <div class="participant-info">
       <span class="username">${participant.username}</span>
       ${participant.isHost ? '<span class="host-badge">Host</span>' : ""}

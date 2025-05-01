@@ -46,6 +46,9 @@
         </div>
       </div>
 
+      <!-- Round indicator -->
+  <div id="round-indicator" class="round-indicator">Round <span id="round-number"><%= session.currentRound %></span></div>
+
       <div class="chat-section">
         <h3>Chat</h3>
         <div class="chat-box" id="chat-messages">
@@ -80,6 +83,12 @@
         </form>
       </div>
     </div>
+
+    <!-- Next Round Button -->
+  <div id="next-round-btn" style="display: none">
+    <button id="next-round-button">Next Round</button>
+  </div>
+</div>
   </body>
   <script type="module" src="/js/session.js" defer></script>
   <script type="module" src="/socket.io/socket.io.js"></script>

@@ -314,3 +314,19 @@ body {
 #start-session-btn:hover {
   background-color: #45a049; /* Darker green */
 }
+
+.joined-access-code {
+  margin-top: 8px;
+  font-size: 1.1rem;
+  background: #8e1a92;
+  padding: 6px 10px;
+  border: 1px dashed #aaa;
+  display: inline-block;
+  border-radius: 5px;
+}
+
+.joined-access-code .code {
+  font-family: monospace;
+  color: #0077cc;
+  margin-left: 5px;
+}

@@ -13,6 +13,7 @@ const sessionSchema = new mongoose.Schema({
     enum: ["waiting", "in-progress", "completed"],
     default: "waiting",
   },
+
   createdAt: { type: Date, default: Date.now },
 });
 

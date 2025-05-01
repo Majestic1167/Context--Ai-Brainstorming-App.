@@ -81,7 +81,11 @@ router.post("/login", (req, res, next) => {
   })(req, res, next);
 });
 
-router.post("/signup", handleSignup);
+//router.post("/signup", handleSignup);
+import upload from "../middlewares/multer.js"; // Import the Multer middleware
+
+// Update the route to use Multer middleware
+router.post("/signup", upload.single("profilePicture"), handleSignup);
 
 router.post("/forgotpassword", handleForgotPassword);
 router.post("/verifycode", handleVerifyCode);

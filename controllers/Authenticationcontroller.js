@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import crypto from "crypto"; // To generate a random verification code
 import User from "../models/User.js";
+import fs from "fs";
 
 // GET Rouutes(this needs to be used done in the middleware)
 export function getLoginPage(req, res) {
@@ -31,59 +32,73 @@ export function getverifycodePage(req, res) {
 export function getResetPasswordPage(req, res) {
   res.render("ResetPassword", { error: null });
 }
-
-//signup
 export async function handleSignup(req, res) {
   const { username, email, phone, password, confirmPassword, name } = req.body;
-
-  if (password !== confirmPassword) {
-    return res.render("Signup", { error: "Passwords do not match!" });
-  }
-
-  if (!/^[^\s@]+@gmail\.com$/.test(email)) {
-    return res.render("Signup", { error: "Only Gmail addresses are allowed!" });
-  }
-
-  // Check if phone number is valid (between 9 to 15 digits)
-  if (!/^[0-9]{9,15}$/.test(phone)) {
-    return res.render("Signup", { error: "Enter a valid phone number!" });
-  }
+  const formData = { username, email, phone, name };
+  let uploadedFilePath = null;
 
   try {
-    // Check if the email or phone number already exists in the database
+    // 1. First validate all inputs (before handling file)
+    if (password !== confirmPassword) {
+      throw new Error("Passwords do not match!");
+    }
+
+    if (!/^[^\s@]+@gmail\.com$/.test(email)) {
+      throw new Error("Only Gmail addresses are allowed!");
+    }
+
+    if (!/^[0-9]{9,15}$/.test(phone)) {
+      throw new Error("Enter a valid phone number (9-15 digits)!");
+    }
+
+    // 2. Check for existing user
     const existingUser = await User.findOne({
-      $or: [{ email }, { phone }],
+      $or: [{ email }, { phone }, { username }],
     });
 
     if (existingUser) {
-      return res.render("Signup", {
-        error: "Email or phone number already exists!",
-      });
+      let errorMessage = "Account with this ";
+      if (existingUser.email === email) errorMessage += "email";
+      else if (existingUser.phone === phone) errorMessage += "phone number";
+      else errorMessage += "username";
+      throw new Error(errorMessage + " already exists!");
     }
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // 3. Only process file if all validations passed
+    let profilePicturePath = "/images/profilepictures/default.jpg";
+    if (req.file) {
+      uploadedFilePath = req.file.path;
+      profilePicturePath = "/uploads/profilepictures/" + req.file.filename;
+    }
 
-    // Create a new user
+    // 4. Hash password and create user
+    const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({
       name,
       username,
       email,
       phone,
       password: hashedPassword,
+      profilePicture: profilePicturePath,
     });
 
-    // Save the new user to the database
     await newUser.save();
-
-    // Redirect to login page
-    res.redirect("/login");
+    return res.redirect("/login");
   } catch (error) {
-    console.error("Error saving user data:", error);
-    res.render("Signup", { error: "Something went wrong. Please try again." });
+    // 5. Clean up uploaded file if error occurred
+    if (uploadedFilePath && fs.existsSync(uploadedFilePath)) {
+      fs.unlink(uploadedFilePath, (err) => {
+        if (err) console.error("Error deleting uploaded file:", err);
+      });
+    }
+
+    console.error("Signup error:", error);
+    return res.render("Signup", {
+      error: error.message,
+      formData,
+    });
   }
 }
-
 export async function handleForgotPassword(req, res) {
   const { identifier } = req.body; // Get the identifier (email or phone)
 
