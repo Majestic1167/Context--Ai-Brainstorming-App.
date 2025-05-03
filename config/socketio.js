@@ -1,6 +1,11 @@
 import { Server } from "socket.io";
 import Session from "../models/session.js";
 
+import { finalizeSessionStats } from "../controllers/sessionStats.js";
+import Idea from "../models/brainstormingidea.js";
+import axios from "axios";
+import { LM_STUDIO_URL } from "../config/lmstudio.js"; // adjust if needed
+
 let io;
 
 export function initSocket(server) {
@@ -72,6 +77,10 @@ export function initSocket(server) {
         });
 
         socket.join(roomId);
+
+        // ✅ Send host status
+        socket.emit("session-info", { isHost });
+
         console.log(`User ${username} joined room: ${roomId}`);
 
         const currentUser = session.participants.find(
@@ -87,7 +96,7 @@ export function initSocket(server) {
           isHost,
         });
 
-        // ✅ FIXED PARTICIPANT EMIT WITH PROFILE PICS
+        //  FIXED PARTICIPANT EMIT WITH PROFILE PICS
         const updatedSession = await Session.findById(roomId)
           .populate("hostId", "username profilePicture")
           .populate("participants", "username profilePicture");
@@ -167,8 +176,37 @@ export function initSocket(server) {
       }
     });
 
+    /*
     socket.on("send-idea", ({ word, username, sessionId }) => {
       io.to(sessionId).emit("receive-idea", { word, username });
+    });*/
+
+    socket.on("send-idea", async ({ word, username, sessionId, userId }) => {
+      if (!sessionId || !userId || !word) {
+        console.warn("Missing data in send-idea");
+        return;
+      }
+
+      try {
+        // 1. Save to MongoDB (wordCount will be set by your pre-save hook)
+        const savedIdea = await Idea.create({
+          sessionId,
+          userId,
+          content: word,
+        });
+
+        console.log("Idea saved to DB:", savedIdea);
+
+        // 2. Broadcast to all users in that session
+        io.to(sessionId).emit("receive-idea", {
+          word: savedIdea.content,
+          username,
+          userId: savedIdea.userId, // <— use savedIdea, not saved
+          ideaId: savedIdea._id, // optional: include the new idea’s id
+        });
+      } catch (err) {
+        console.error("Error saving idea:", err);
+      }
     });
 
     socket.on("typing", async (data) => {
@@ -191,6 +229,84 @@ export function initSocket(server) {
         });
       } catch (error) {
         console.error("Error handling typing notification:", error);
+      }
+    });
+
+    socket.on("timer-finished", async (data) => {
+      try {
+        const sessionId = data?.sessionId;
+        const incomingIdeas = data?.ideas;
+
+        if (!sessionId) {
+          console.warn("timer-finished event received without sessionId");
+          return;
+        }
+
+        const session = await Session.findById(sessionId);
+        if (!session) {
+          console.warn("Session not found:", sessionId);
+          return;
+        }
+
+        console.log("Fetched session:", session); // <- ADD THIS LINE
+
+        // 🔐 Ensure only the host can finalize the session
+        if (socket.userId !== session.hostId.toString()) {
+          console.warn(
+            `Unauthorized timer-finished attempt by ${socket.userId}`
+          );
+          return;
+        }
+
+        // 1. Get all ideas from DB (replaces saving block)
+        const ideas = await Idea.find({ sessionId }).sort({ submittedAt: 1 });
+        if (ideas.length == 0) {
+          console.warn("No ideas found in DB for session:", sessionId);
+        }
+
+        // 2. Finalize session stats
+        await finalizeSessionStats(sessionId);
+
+        // 3. Combine content for AI prompt
+        const allWords = ideas.map((i) => i.content).join(", ");
+
+        // 4. Build a richer prompt using sessionName and theme
+        const prompt = `Session Title: "${session.sessionName}"
+Theme: ${session.theme}
+Brainstorming Words: ${allWords}
+
+
+
+
+Based on the session title, theme, and the listed brainstorming words, generate a unique and creative concept. 
+Your response should include:
+
+1. A compelling title for the concept.
+2. A one-line summary or tagline.
+3. A detailed description that connects the words with the theme.
+4. Optionally, suggest how the idea could be used (e.g., as a product, campaign, story, etc.).`;
+
+        console.log("🧠 Final AI Prompt being sent:\n", prompt);
+
+        // 4. Send prompt to LM Studio
+        const payload = {
+          messages: [
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
+          model: "llama-3.2-1b-claude-3.7-sonnet-reasoning-distilled",
+          stream: false,
+        };
+
+        const { data: lmData } = await axios.post(LM_STUDIO_URL, payload);
+        const aiResponse = lmData.choices[0].message.content;
+
+        // 5. Send AI response to all clients in the session
+        io.to(sessionId).emit("ai-response", { response: aiResponse });
+      } catch (err) {
+        console.error("Error during session finalization:", err);
       }
     });
 

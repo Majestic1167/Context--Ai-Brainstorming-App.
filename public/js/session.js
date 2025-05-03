@@ -4,6 +4,11 @@ import {
   renderParticipantsList,
 } from "../js/ui.js";
 
+const ideaForm = document.getElementById("idea-form");
+const ideaInput = document.getElementById("idea-input");
+const ideaWarning = document.getElementById("idea-warning");
+const ideasContainer = document.getElementById("ideas-container");
+
 let socket;
 let sessionId, userId, username;
 
@@ -33,9 +38,9 @@ function initializeSession() {
   setupSocketListeners();
 }
 
-let countdownInterval; // So we can clear it between rounds if needed
+let countdownInterval;
 
-function startRoundTimer(timeLeft) {
+function startRoundTimer(timeLeft, sessionId) {
   const timerDisplay = document.getElementById("session-timer");
 
   const renderTime = (seconds) => {
@@ -44,20 +49,80 @@ function startRoundTimer(timeLeft) {
     timerDisplay.textContent = `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  renderTime(timeLeft); // Initial display
+  renderTime(timeLeft);
+  clearInterval(countdownInterval);
 
-  clearInterval(countdownInterval); // Clear any existing timer
   countdownInterval = setInterval(() => {
     timeLeft--;
     if (timeLeft >= 0) {
       renderTime(timeLeft);
     } else {
       clearInterval(countdownInterval);
-      socket.emit("timer-finished"); // Let the server know
+
+      // ✅ NOW fetch the ideas AFTER time ends
+      const ideaElements = document.getElementsByClassName("useridea");
+      const ideaData = Array.from(ideaElements).map((el) => ({
+        text: el.textContent.trim(),
+        userId: el.dataset.userId,
+        username: el.dataset.username,
+      }));
+
+      console.log(ideaData);
+
+      // ⬇️ Emit with the sessionId payload
+      socket.emit("timer-finished", {
+        sessionId,
+        ideas: ideaData,
+      });
+
+      ideaInput.disabled = true;
+      ideaForm.querySelector("button").disabled = true;
+
+      // show a “time’s up” warning
+      const warning = document.getElementById("idea-warning");
+      warning.textContent = "⏰ Time's up!";
+      warning.style.display = "block";
     }
   }, 1000);
 }
 
+// ---------------------- BRAINSTORMING FORM ----------------------
+
+if (ideaForm && ideaInput && ideasContainer) {
+  ideaForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const word = ideaInput.value.trim();
+
+    // Allow only one word (no spaces)
+    if (word.includes(" ")) {
+      ideaWarning.style.display = "block";
+      return;
+    }
+
+    ideaWarning.style.display = "none";
+
+    // Emit idea
+    socket.emit("send-idea", {
+      word,
+      userId,
+      username,
+      sessionId,
+    });
+
+    ideaInput.value = "";
+  });
+}
+
+// Listen for button click to emit "nextRound"
+const nextRoundBtn = document.getElementById("next-round-button");
+if (nextRoundBtn) {
+  nextRoundBtn.addEventListener("click", () => {
+    const sessionId =
+      document.querySelector(".session-container").dataset.sessionId;
+    socket.emit("nextRound", { sessionId });
+  });
+}
 // ---------------------- SOCKET LISTENERS ----------------------
 
 function setupSocketListeners() {
@@ -68,12 +133,6 @@ function setupSocketListeners() {
   socket.on("connect", () => {
     console.log("Connected:", socket.id);
   });
-
-  /*
-  socket.on("room participants", (data) => {
-    participants = data;
-    renderParticipantsList(participants);
-  });*/
 
   socket.on("room participants", (data) => {
     console.log("Received room participants:", data);
@@ -116,11 +175,28 @@ function setupSocketListeners() {
     });
   });
 
+  /*
   socket.on("receive-idea", ({ word, username }) => {
     const div = document.createElement("div");
     div.className = "idea-entry";
-    div.textContent = `${username}: ${word}`;
+    const p = document.createElement("p");
+    p.innerHTML = `<span class="user"> ${username}</span>:<span class="useridea">  ${word}</span>`;
+    div.innerHTML = p.innerHTML;
     ideasContainer?.appendChild(div);
+  });*/
+
+  const allIdeas = []; // Store raw ideas
+
+  socket.on("receive-idea", ({ word, username }) => {
+    const div = document.createElement("div");
+    div.className = "idea-entry";
+
+    // Add HTML for display
+    div.innerHTML = `<span class="user">${username}</span>: <span class="useridea">${word}</span>`;
+    ideasContainer?.appendChild(div);
+
+    // Store raw idea for saving later
+    allIdeas.push({ username, word });
   });
 
   socket.on("typing", (data) => {
@@ -135,7 +211,7 @@ function setupSocketListeners() {
 
   socket.on(
     "session-started",
-    ({ sessionName, theme, timer, round = 1, participants }) => {
+    ({ sessionId, sessionName, theme, timer, round = 1, participants }) => {
       // Remove the waiting message and start button
       document.querySelector(".joined-wait-message")?.remove();
       document.getElementById("start-session-btn")?.remove();
@@ -149,7 +225,8 @@ function setupSocketListeners() {
         "block";
       document.querySelector(".joined-chat-section").style.display = "block";
 
-      startRoundTimer(timer);
+      // Pass sessionId to startRoundTimer
+      startRoundTimer(timer, sessionId); // Pass the sessionId here
 
       // Render participants list with usernames and profile pictures
       renderParticipantsList(participants);
@@ -167,9 +244,10 @@ function setupSocketListeners() {
       socket.emit("start-session", { sessionId, timer });
     });
 
-  socket.on("timer finished", () => {
+  /*
+  socket.on("timer-finished", () => {
     alert("Time's up! The round has ended.");
-  });
+  });*/
 
   socket.on("connect_error", (err) => {
     console.error("Socket error:", err.message);
@@ -224,48 +302,6 @@ function addSystemMessage(text) {
   msg.className = "system-message";
   msg.textContent = text;
   chatMessages.appendChild(msg);
-}
-
-// ---------------------- BRAINSTORMING FORM ----------------------
-
-const ideaForm = document.getElementById("idea-form");
-const ideaInput = document.getElementById("idea-input");
-const ideaWarning = document.getElementById("idea-warning");
-const ideasContainer = document.getElementById("ideas-container");
-
-if (ideaForm && ideaInput && ideasContainer) {
-  ideaForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-
-    const word = ideaInput.value.trim();
-
-    // Allow only one word (no spaces)
-    if (word.includes(" ")) {
-      ideaWarning.style.display = "block";
-      return;
-    }
-
-    ideaWarning.style.display = "none";
-
-    // Emit idea
-    socket.emit("send-idea", {
-      word,
-      username,
-      sessionId,
-    });
-
-    ideaInput.value = "";
-  });
-}
-
-// Listen for button click to emit "nextRound"
-const nextRoundBtn = document.getElementById("next-round-button");
-if (nextRoundBtn) {
-  nextRoundBtn.addEventListener("click", () => {
-    const sessionId =
-      document.querySelector(".session-container").dataset.sessionId;
-    socket.emit("nextRound", { sessionId });
-  });
 }
 
 // ---------------------- CLEANUP ----------------------
