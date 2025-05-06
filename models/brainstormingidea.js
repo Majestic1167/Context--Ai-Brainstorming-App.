@@ -1,21 +1,19 @@
 import mongoose from "mongoose";
 
+const wordEntrySchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  username: { type: String, required: true },
+  content: { type: String, required: true },
+  submittedAt: { type: Date, default: Date.now },
+});
+
 const ideaSchema = new mongoose.Schema({
   sessionId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Session",
     required: true,
   },
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  content: { type: String, required: true },
-  wordCount: { type: Number, required: true },
-  submittedAt: { type: Date, default: Date.now },
-});
-
-// run before validation so wordCount is populated in time
-ideaSchema.pre("validate", function (next) {
-  this.wordCount = this.content.trim().split(/\s+/).length;
-  next();
+  words: [wordEntrySchema], // array of words + user info
 });
 
 export default mongoose.model("Idea", ideaSchema);

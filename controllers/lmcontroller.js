@@ -5,7 +5,7 @@ export const handleBrainstormingAI = async (req, res) => {
   try {
     const payload = {
       ...req.body,
-      model: "llama-3.2-1b-claude-3.7-sonnet-reasoning-distilled",
+      model: "phi-3.1-mini-128k-instruct",
       stream: true,
     };
 

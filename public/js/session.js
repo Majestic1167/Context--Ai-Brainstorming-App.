@@ -75,6 +75,12 @@ function startRoundTimer(timeLeft, sessionId) {
         ideas: ideaData,
       });
 
+      // 🔽 Show "AI is generating..." message and hide other sections
+      document.querySelector(".joined-chat-section").style.display = "none";
+      document.querySelector(".joined-brainstorming-section").style.display =
+        "none";
+      document.getElementById("ai-loading-message").style.display = "block";
+
       ideaInput.disabled = true;
       ideaForm.querySelector("button").disabled = true;
 
@@ -175,16 +181,6 @@ function setupSocketListeners() {
     });
   });
 
-  /*
-  socket.on("receive-idea", ({ word, username }) => {
-    const div = document.createElement("div");
-    div.className = "idea-entry";
-    const p = document.createElement("p");
-    p.innerHTML = `<span class="user"> ${username}</span>:<span class="useridea">  ${word}</span>`;
-    div.innerHTML = p.innerHTML;
-    ideasContainer?.appendChild(div);
-  });*/
-
   const allIdeas = []; // Store raw ideas
 
   socket.on("receive-idea", ({ word, username }) => {
@@ -207,6 +203,113 @@ function setupSocketListeners() {
         : "";
       indicator.style.display = data.isTyping ? "block" : "none";
     }
+  });
+
+  socket.on("ai-response", (data) => {
+    let aiResponse = data.response || "No response";
+
+    console.log("Raw AI Response:", aiResponse);
+
+    // Clean formatting issues
+    aiResponse = aiResponse.replace(/<think>/gi, "").replace(/<\/think>/gi, "");
+    aiResponse = aiResponse.replace(/```json|```/gi, "").trim();
+    aiResponse = aiResponse.replace(/\/\/.*$/gm, "").trim();
+
+    console.log("Cleaned AI Response:", aiResponse);
+
+    let parsed;
+    try {
+      parsed = JSON.parse(aiResponse);
+    } catch (e) {
+      console.error("Invalid JSON from AI:", e);
+      parsed = {
+        words_list: [],
+        generated_text: "No concept generated.",
+        most_influential_contributor: "Unknown",
+      };
+    }
+
+    // Support various possible word list key
+    const words =
+      parsed.words_list ||
+      parsed.words ||
+      parsed.list_of_words ||
+      parsed.word_list ||
+      parsed.selected_words ||
+      [];
+
+    const wordsHTML = words.length
+      ? words.map((word) => `<li>${word}</li>`).join("")
+      : "<li>No words</li>";
+
+    const generatedText = parsed.generated_text || "No concept generated.";
+    const description =
+      typeof generatedText === "string"
+        ? generatedText
+        : generatedText.description || "No description available";
+
+    // Contributor extraction (support both string and object)
+    // Contributor extraction (support both string and object)
+    const rawContributor = parsed.most_influential_contributor;
+    let contributorUser = "Unknown";
+    let contributedWords = "N/A";
+    let wordCount = "N/A";
+
+    if (typeof rawContributor === "string") {
+      contributorUser = rawContributor;
+      if (words.length) {
+        contributedWords = words.join(", ");
+        wordCount = words.length;
+      }
+    } else if (typeof rawContributor === "object" && rawContributor !== null) {
+      contributorUser =
+        rawContributor.name ||
+        rawContributor.user ||
+        rawContributor.user_name ||
+        "Unknown";
+
+      const possibleWords =
+        rawContributor.words ||
+        rawContributor.words_count ||
+        rawContributor.contributions ||
+        rawContributor.centrality ||
+        rawContributor.words_contributed;
+
+      if (Array.isArray(possibleWords)) {
+        contributedWords = possibleWords.join(", ");
+        wordCount = possibleWords.length;
+      } else if (typeof rawContributor.centrality === "object") {
+        wordCount = Object.keys(rawContributor.centrality).length;
+      } else if (typeof rawContributor.word_count === "number") {
+        wordCount = rawContributor.word_count;
+      } else if (typeof rawContributor.number_of_words === "number") {
+        wordCount = rawContributor.number_of_words;
+      }
+    }
+
+    const conceptHTML = `
+      <div class="ai-concept-wrapper">
+          <h2>🌟 AI Generated Concept</h2>
+          <h3>💡 Concept Summary</h3>
+          <p>${description}</p>
+          <h3>📝 Words Used</h3>
+          <ul>${wordsHTML}</ul>
+          <h3>🏆 Most Influential Contributor</h3>
+          <p>
+              <strong>${contributorUser}</strong><br>
+              Contributed ${contributedWords} words (${wordCount})
+          </p>
+      </div>
+    `;
+
+    const aiConceptContent = document.getElementById("ai-concept-content");
+    aiConceptContent.innerHTML = conceptHTML;
+
+    document.querySelector(".joined-chat-section").style.display = "none";
+    document.querySelector(".joined-brainstorming-section").style.display =
+      "none";
+    document.getElementById("ai-loading-message").style.display = "none";
+    document.getElementById("ai-generated-concept").style.display = "block";
   });
 
   socket.on(
@@ -243,11 +346,6 @@ function setupSocketListeners() {
       // Emit event to server with timer value
       socket.emit("start-session", { sessionId, timer });
     });
-
-  /*
-  socket.on("timer-finished", () => {
-    alert("Time's up! The round has ended.");
-  });*/
 
   socket.on("connect_error", (err) => {
     console.error("Socket error:", err.message);

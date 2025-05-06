@@ -188,21 +188,28 @@ export function initSocket(server) {
       }
 
       try {
-        // 1. Save to MongoDB (wordCount will be set by your pre-save hook)
-        const savedIdea = await Idea.create({
-          sessionId,
-          userId,
-          content: word,
-        });
+        const existingIdeaDoc = await Idea.findOne({ sessionId });
 
-        console.log("Idea saved to DB:", savedIdea);
+        if (existingIdeaDoc) {
+          // Push word to existing doc
+          existingIdeaDoc.words.push({
+            userId,
+            username,
+            content: word,
+          });
+          await existingIdeaDoc.save();
+        } else {
+          // First word for this session — create new doc
+          await Idea.create({
+            sessionId,
+            words: [{ userId, username, content: word }],
+          });
+        }
 
-        // 2. Broadcast to all users in that session
         io.to(sessionId).emit("receive-idea", {
-          word: savedIdea.content,
+          word,
           username,
-          userId: savedIdea.userId, // <— use savedIdea, not saved
-          ideaId: savedIdea._id, // optional: include the new idea’s id
+          userId,
         });
       } catch (err) {
         console.error("Error saving idea:", err);
@@ -248,7 +255,7 @@ export function initSocket(server) {
           return;
         }
 
-        console.log("Fetched session:", session); // <- ADD THIS LINE
+        console.log("Fetched session:", session); // Logging for debugging
 
         // 🔐 Ensure only the host can finalize the session
         if (socket.userId !== session.hostId.toString()) {
@@ -259,32 +266,31 @@ export function initSocket(server) {
         }
 
         // 1. Get all ideas from DB (replaces saving block)
-        const ideas = await Idea.find({ sessionId }).sort({ submittedAt: 1 });
-        if (ideas.length == 0) {
+        const ideaDoc = await Idea.findOne({ sessionId });
+        if (!ideaDoc || ideaDoc.words.length === 0) {
           console.warn("No ideas found in DB for session:", sessionId);
+          return;
         }
 
         // 2. Finalize session stats
         await finalizeSessionStats(sessionId);
 
-        // 3. Combine content for AI prompt
-        const allWords = ideas.map((i) => i.content).join(", ");
+        const wordsWithUsernames = ideaDoc.words
+          .map((w) => `"${w.content}" (by ${w.username})`)
+          .join(", ");
 
-        // 4. Build a richer prompt using sessionName and theme
-        const prompt = `Session Title: "${session.sessionName}"
-Theme: ${session.theme}
-Brainstorming Words: ${allWords}
-
-
-
-
-Based on the session title, theme, and the listed brainstorming words, generate a unique and creative concept. 
-Your response should include:
-
-1. A compelling title for the concept.
-2. A one-line summary or tagline.
-3. A detailed description that connects the words with the theme.
-4. Optionally, suggest how the idea could be used (e.g., as a product, campaign, story, etc.).`;
+        const prompt = `
+"role": "As a collaborative AI content generator",
+"input": "You will receive a list of words created by users during a brainstorming session",
+Theme: "${session.theme}"
+Words: ${wordsWithUsernames}
+"steps": [
+  "Analyze the list of words and eliminate the ones that not belong to the theme",
+  "Generate a creative idea based on the words provided by the users in the brainstorming session",
+  "Identify which user contributed the most words or the most central ones in the text"
+],
+"expectation": "Produce a JSON object with three fields: the list of words, the generated text, and the most influential contributor"
+`;
 
         console.log("🧠 Final AI Prompt being sent:\n", prompt);
 
@@ -296,14 +302,20 @@ Your response should include:
               content: prompt,
             },
           ],
-          model: "llama-3.2-1b-claude-3.7-sonnet-reasoning-distilled",
+          model: "phi-3.1-mini-128k-instruct",
           stream: false,
         };
 
+        // Send the prompt to LM Studio and get the response
         const { data: lmData } = await axios.post(LM_STUDIO_URL, payload);
         const aiResponse = lmData.choices[0].message.content;
 
-        // 5. Send AI response to all clients in the session
+        if (!aiResponse) {
+          console.error("AI response is empty or failed.");
+          return;
+        }
+
+        // 5. Send the AI response to all clients in the session
         io.to(sessionId).emit("ai-response", { response: aiResponse });
       } catch (err) {
         console.error("Error during session finalization:", err);

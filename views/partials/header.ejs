@@ -1,48 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/Css/mystyle.css" />
-    <link rel="stylesheet" href="/Css/login.css" />
-    <!-- Keep this for login-specific styles -->
-  </head>
-  <body>
-    <!-- Navbar -->
-    <header>
-      <div class="logo">
-        <img src="/images/Pagelogo.png" alt="Context Logo" class="logo-icon" />
-        Context
-      </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/Css/mystyle.css" />
+  <link rel="stylesheet" href="/Css/login.css" />
+  <!-- Keep this for login-specific styles -->
+</head>
+<body>
+  <!-- Navbar -->
+  <header>
+    <div class="logo">
+      <img src="/images/Pagelogo.png" alt="Context Logo" class="logo-icon" />
+      Context
+    </div>
 
-      <nav>
-        <ul>
-          <!-- Dynamically change Home link based on login status -->
-          <li>
-            <a href="">Home</a>
-          </li>
-          <li><a href="/about">About</a></li>
-          <li><a href="#">Community</a></li>
-        </ul>
-      </nav>
+    <nav>
+      <ul>
+        <!-- Dynamically change Home link based on login status -->
+        <li>
+          <a href="">Home</a>
+        </li>
+        <li><a href="/about">About</a></li>
+        <li><a href="#">Community</a></li>
+      </ul>
+    </nav>
 
-      <!-- Check if user is logged in -->
-      <% if (typeof user !== 'undefined' && user) { %>
-      <div class="profile-container">
-        <img
-          src="<%= user && user.profilePicture ? user.profilePicture : '/images/user.png' %>"
-          alt="Profile"
-          class="profile-icon"
-          id="profile-icon"
-        />
-        <div class="dropdown-menu hidden" id="dropdown-menu">
-          <a href="/editprofile">Edit Profile</a>
-          <a href="/statistics">Statistics</a>
-          <a href="/myproject">My Projects</a>
-          <a href="/logout" class="logout-link">Log Out</a>
-        </div>
+    <!-- Check if user is logged in -->
+    <% if (typeof user !== 'undefined' && user) { %>
+    <div class="profile-container">
+      <img
+        src="<%= user && user.profilePicture ? user.profilePicture : '/images/user.png' %>"
+        alt="Profile"
+        class="profile-icon"
+        id="profile-icon"
+      />
+      <div class="dropdown-menu hidden" id="dropdown-menu">
+        <a href="/editprofile">Edit Profile</a>
+        <a href="/statistics">Statistics</a>
+        <a href="/myproject">My Projects</a>
+        <a href="/logout" class="logout-link">Log Out</a>
       </div>
-      <% } else { %> <% } %>
-    </header>
-  </body>
-</html>
+    </div>
+    <% } else { %> <% } %>
+  </header>
+  <script src="/js/javascriptexe.js"></script>
+</body>
