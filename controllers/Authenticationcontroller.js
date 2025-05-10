@@ -64,22 +64,15 @@ export async function handleSignup(req, res) {
       throw new Error(errorMessage + " already exists!");
     }
 
-    // 3. Only process file if all validations passed
-    let profilePicturePath = "/images/profilepictures/default.jpg";
-    if (req.file) {
-      uploadedFilePath = req.file.path;
-      profilePicturePath = "/uploads/profilepictures/" + req.file.filename;
-    }
+    const profilePictureFilename = req.file ? req.file.filename : "default.jpg";
 
-    // 4. Hash password and create user
-    const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({
       name,
       username,
       email,
       phone,
-      password: hashedPassword,
-      profilePicture: profilePicturePath,
+      password,
+      profilePicture: profilePictureFilename,
     });
 
     await newUser.save();

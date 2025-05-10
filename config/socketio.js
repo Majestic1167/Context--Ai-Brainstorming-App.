@@ -1,5 +1,6 @@
 import { Server } from "socket.io";
 import Session from "../models/session.js";
+import User from "../models/User.js";
 
 import { finalizeSessionStats } from "../controllers/sessionStats.js";
 import Idea from "../models/brainstormingidea.js";
@@ -130,6 +131,15 @@ export function initSocket(server) {
         isHost: p._id.equals(session.hostId._id),
       }));
 
+      // 🔄 Increment sessionsJoined for each participant
+      await Promise.all(
+        session.participants.map((participant) =>
+          User.findByIdAndUpdate(participant._id, {
+            $inc: { sessionsJoined: 1 },
+          })
+        )
+      );
+
       io.to(sessionId).emit("session-started", {
         sessionId: session._id,
         sessionName: session.sessionName,
@@ -176,11 +186,6 @@ export function initSocket(server) {
       }
     });
 
-    /*
-    socket.on("send-idea", ({ word, username, sessionId }) => {
-      io.to(sessionId).emit("receive-idea", { word, username });
-    });*/
-
     socket.on("send-idea", async ({ word, username, sessionId, userId }) => {
       if (!sessionId || !userId || !word) {
         console.warn("Missing data in send-idea");
@@ -205,6 +210,11 @@ export function initSocket(server) {
             words: [{ userId, username, content: word }],
           });
         }
+
+        // 🔄 Increment totalWords for the user
+        await User.findByIdAndUpdate(userId, {
+          $inc: { totalWords: 1 },
+        });
 
         io.to(sessionId).emit("receive-idea", {
           word,
@@ -289,7 +299,11 @@ Words: ${wordsWithUsernames}
   "Generate a creative idea based on the words provided by the users in the brainstorming session",
   "Identify which user contributed the most words or the most central ones in the text"
 ],
-"expectation": "Produce a JSON object with three fields: the list of words, the generated text, and the most influential contributor"
+"expectation": "Produce a JSON object with three fields: the list of words,
+ the generated text, and the most influential contributor. For the contributor, 
+ include their name and an array of the exact words they contributed.Use the key "words" for the list of contributed words.
+"
+
 `;
 
         console.log("🧠 Final AI Prompt being sent:\n", prompt);
@@ -317,6 +331,71 @@ Words: ${wordsWithUsernames}
 
         // 5. Send the AI response to all clients in the session
         io.to(sessionId).emit("ai-response", { response: aiResponse });
+
+        // 6. Parse and save the AI summary and contributor to the DB
+        try {
+          const cleaned = aiResponse
+            .replace(/<think>/gi, "")
+            .replace(/<\/think>/gi, "")
+            .replace(/```json|```/gi, "")
+            .replace(/\/\/.*$/gm, "")
+            .trim();
+
+          const parsed = JSON.parse(cleaned);
+
+          const generatedText =
+            parsed.generated_text || "No concept generated.";
+          const contributor = parsed.most_influential_contributor || {};
+
+          const username =
+            contributor.username ||
+            contributor.user ||
+            contributor.user_name ||
+            contributor.name ||
+            "Unknown";
+
+          const contributionCount =
+            contributor.contribution_count ||
+            contributor.number_of_words ||
+            contributor.word_count ||
+            0;
+
+          const wordsListed = Array.isArray(
+            contributor.words_listed ||
+              contributor.words ||
+              contributor.words_contributed
+          )
+            ? contributor.words_listed ||
+              contributor.words ||
+              contributor.words_contributed
+            : [];
+
+          const user = await User.findOne({ username });
+
+          if (user) {
+            // 🔼 Increment the user's top contributions count
+            await User.findByIdAndUpdate(user._id, {
+              $inc: { noOfTopContributions: 1 },
+            });
+          }
+
+          console.log(generatedText);
+
+          await Session.findByIdAndUpdate(sessionId, {
+            aiSummary: generatedText,
+            mostInfluentialContributor: {
+              userId: user?._id || null,
+              username,
+              contributionCount,
+              wordsListed,
+            },
+            status: "completed",
+          });
+
+          console.log("✅ AI summary saved to session:", sessionId);
+        } catch (saveErr) {
+          console.error(" Failed to save AI summary to DB:", saveErr.message);
+        }
       } catch (err) {
         console.error("Error during session finalization:", err);
       }

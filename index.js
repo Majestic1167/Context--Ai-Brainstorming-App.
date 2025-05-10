@@ -13,6 +13,8 @@ import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 dotenv.config();
 
+import MongoStore from "connect-mongo";
+
 connectDB();
 
 import http from "http"; // For creating an HTTP server
@@ -31,12 +33,11 @@ app.use(
     secret: process.env.PASSPORTSECRETKEY, // Use an environment variable for security
     resave: false,
     saveUninitialized: false,
-    cookie: {
-      secure: false, // Should be true in production with HTTPS
-      maxAge: 1000 * 60 * 60 * 24, // Session duration (1 day)
-    },
-    rolling: true,
-    name: "sessionID", // You can set a custom name for the session cookie
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGODBCONNECTION, // Use an environment variable for the MongoDB
+      collectionName: "Usersessions",
+    }),
+    cookie: { maxage: 1000 * 60 * 60 * 24 },
   })
 );
 
@@ -76,6 +77,9 @@ app.use("/", SessionRoute); // Session management routes
 
 import user from "./routes/User.js";
 app.use("/", user); // User management routes
+
+import adminRoutes from "./routes/Adminroutes.js";
+app.use("/", adminRoutes); // or "/admin", depending on your URL design
 
 // Make flash messages available to views
 app.use((req, res, next) => {

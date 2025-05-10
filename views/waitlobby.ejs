@@ -50,10 +50,11 @@
         <!-- Host -->
         <div class="participant host">
           <img
-            src="<%= session.hostId && session.hostId.profilePicture ? session.hostId.profilePicture : '/images/default-avatar.png' %>"
+            src="<%= session.hostId && session.hostId.profilePicture ? '/images/profilepictures/' + session.hostId.profilePicture : '/images/default-avatar.png' %>"
             alt="Host"
             class="participant-avatar"
           />
+
           <div class="participant-info">
             <span class="username"
               ><%= session.hostId && session.hostId.username ?
@@ -69,10 +70,11 @@
 
         <div class="participant">
           <img
-            src="<%= p.profilePicture ? p.profilePicture : '/images/default-avatar.png' %>"
+            src="<%= p.profilePicture ? '/images/profilepictures/' + p.profilePicture : '/images/default-avatar.png' %>"
             alt="<%= p.username || 'Participant' %>"
             class="participant-avatar"
           />
+
           <div class="participant-info">
             <span class="username"><%= p.username || 'Unknown' %></span>
           </div>
@@ -115,6 +117,19 @@
           <h3>AI is generating your concept...</h3>
         </div>
 
+        <!-- AI Error Message (hidden initially) -->
+        <div
+          id="ai-error-message"
+          style="
+            display: none;
+            color: red;
+            text-align: center;
+            margin-top: 2rem;
+          "
+        >
+          <h3>⚠️ Failed to generate concept. Please try again later.</h3>
+        </div>
+
         <!-- Brainstorming -->
         <div class="joined-brainstorming-section" style="display: none">
           <h3 class="joined-brainstorming-title">Brainstorming Ideas</h3>
@@ -154,12 +169,15 @@
       <% } else { %>
       <div class="joined-wait-message">WAIT FOR THE HOST TO START</div>
       <% } %>
-
-      <!-- Next Round Button (hidden by default) -->
-      <div id="next-round-btn" style="display: none">
-        <button>Next Round</button>
-      </div>
     </div>
+    <%- include('partials/footer') %>
+
+    <script>
+      window.userLoggedIn =
+        "<%= typeof user !== 'undefined' && user ? 'true' : 'false' %>";
+      window.userIsHost = "<%= isHost ? 'true' : 'false' %>";
+      window.userIsAdmin = "<%= user && user.isAdmin ? 'true' : 'false' %>";
+    </script>
 
     <script type="module" src="/socket.io/socket.io.js"></script>
     <script type="module" src="/js/session.js" defer></script>

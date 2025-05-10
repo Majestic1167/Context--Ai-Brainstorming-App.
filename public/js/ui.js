@@ -33,13 +33,20 @@ export function renderParticipantsList(data) {
     if (p.isHost) {
       const hostImg = listEl.querySelector(".participant.host img");
       if (hostImg && p.profilePicture) {
-        hostImg.src = p.profilePicture;
+        hostImg.src = "/images/profilepictures/" + p.profilePicture;
       }
+
       return;
     }
 
+    /*
     const profileSrc = p.profilePicture?.trim()
       ? p.profilePicture
+      : "/images/profilepictures/default.jpg";
+*/
+
+    const profileSrc = p.profilePicture?.trim()
+      ? "/images/profilepictures/" + p.profilePicture
       : "/images/profilepictures/default.jpg";
 
     const item = document.createElement("div");
@@ -74,8 +81,14 @@ export function addParticipantToDOM(participant) {
   );
   if (exists) return;
 
+  /*
   const profileImage = participant.profilePicture?.trim()
     ? participant.profilePicture
+    : "/images/profilepictures/default.jpg";
+*/
+
+  const profileImage = participant.profilePicture?.trim()
+    ? "/images/profilepictures/" + participant.profilePicture
     : "/images/profilepictures/default.jpg";
 
   const item = document.createElement("div");

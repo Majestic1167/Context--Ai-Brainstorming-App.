@@ -3,13 +3,63 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/css/mystyle.css" />
+    <link rel="stylesheet" href="/css/Community.css" />
     <title>Community</title>
   </head>
   <body>
     <!-- Navbar -->
     <%- include('partials/header') %>
 
-    <script src="/js/javascriptexe.js"></script>
+    <main class="community-container">
+      <section class="community-welcome-section">
+        <h1>Welcome to the Community</h1>
+        <p>
+          Join creative minds from around the world in real-time brainstorming
+          sessions. Whether you're stuck on an idea or want to spark new ones,
+          our AI-powered prompts will get you thinking.
+        </p>
+      </section>
+
+      <section class="community-how-it-works">
+        <h2>How It Works</h2>
+        <ul>
+          <li>⚡ Join or host a live brainstorming session (time-limited)</li>
+          <li>🧠 Get a unique AI-generated prompt to kick off your thinking</li>
+          <li>💬 Collaborate in real time with other users</li>
+          <li>🏁 Wrap up with actionable ideas or save them for later</li>
+        </ul>
+      </section>
+
+      <section class="community-guidelines">
+        <h2>Community Guidelines</h2>
+        <p>Help us keep the space productive and respectful:</p>
+        <ul>
+          <li>Be kind and constructive in feedback</li>
+          <li>Stay on topic during sessions</li>
+          <li>No spam, offensive content, or AI prompt abuse</li>
+        </ul>
+      </section>
+
+      <section class="community-featured-sessions">
+        <h2>Featured Sessions</h2>
+        <p>Check out some of the most inspiring recent brainstorming topics:</p>
+        <ul>
+          <li>“How to reinvent remote work culture?”</li>
+          <li>“What’s the next big thing in eco-design?”</li>
+          <li>“Can AI help reduce food waste globally?”</li>
+        </ul>
+      </section>
+
+      <section class="community-get-involved">
+        <h2>Get Involved</h2>
+        <p>
+          Introduce yourself, suggest prompt ideas, or leave feedback in our
+          community forum.
+        </p>
+        <a href="https://discord.gg/tszsTZ3j" class="btn">Visit the Forum</a>
+      </section>
+    </main>
+
+    <%- include('partials/footer') %>
   </body>
 </html>

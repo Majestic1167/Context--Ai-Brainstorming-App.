@@ -6,7 +6,9 @@
     <link rel="stylesheet" href="/css/mystyle.css" />
     <title>About Us</title>
   </head>
+  
   <body>
+    <div class="wrapper">
     <!-- Navbar -->
     <%- include('partials/header') %>
 
@@ -17,23 +19,21 @@
         <!-- Team Member 1 -->
         <div class="team-member" id="member1">
           <div class="team-member__image">
-            <!--<img src="/images/aashish.HEIC" alt="Aashish" /-->
           </div>
           <h2 class="team-member__name">Aashish Kumar Thapa</h2>
           <p class="team-member__role">Developer</p>
           <div class="member-details">
             <p>Email: aashish.thapa1711@gmail.com</p>
             <p>Student Number: 2024623</p>
-            <div class="social-links">
-              <a href="#" class="social-link">Facebook</a>
-              <a href="#" class="social-link">Twitter</a>
-              <a href="#" class="social-link">LinkedIn</a>
+            <div class="social-links"> 
+              <a href="https://x.com/aashishk2189?s=21" class="social-link">Twitter</a>
+              <a href="https://www.linkedin.com/in/aashish-kumar-thapa-42a7062b0?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app" class="social-link">LinkedIn</a>
             </div>
           </div>
         </div>
        
     </section>
-
-    <script src="/js/javascriptexe.js"></script>
+    <%- include('partials/footer') %>
+    </div>
   </body>
 </html>

@@ -44,17 +44,6 @@ router.get("/Forgotpassword", getForgotpasswordPage);
 router.get("/Verifycode", getverifycodePage);
 router.get("/resetpassword", getResetPasswordPage);
 
-/*// Add this route for logout
-router.get('/logout', (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      console.error('Error destroying session:', err);
-    }
-    res.clearCookie('sessionId');  // Clear the session cookie
-    res.redirect('/login');
-  });
-});*/
-
 //  login route
 
 router.post("/login", (req, res, next) => {
@@ -72,7 +61,10 @@ router.post("/login", (req, res, next) => {
         _id: user._id,
         username: user.username,
         profilePicture: user.profilePicture,
+        isAdmin: user.isAdmin,
       };
+
+      req.session.userId = user._id;
 
       console.log("User logged in:", req.session.user);
 

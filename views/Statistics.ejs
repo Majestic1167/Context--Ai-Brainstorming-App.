@@ -3,29 +3,39 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Brainstorming - Statistics</title>
     <link rel="stylesheet" href="/Css/mystyle.css" />
-
-    <title>Statistics</title>
   </head>
   <body>
-    <!-- Navbar -->
-    <header>
-      <div class="logo">
-        <img src="/images/Header_logo.png" alt="Context Logo" class="logo-icon" />
-      </div>
-      <nav>
-        <ul>
-          <li><a href="/Loggedin">Home</a></li>
-          <li><a href="/about">About</a></li>
-          <li><a href="/community">Community</a></li>
-        </ul>
-      </nav>
-      <!-- Back Icon -->
-      <div class="back">
-        <a href="javascript:history.back()">
-          <img src="/images/back_button.png" alt="Back Button" class="back-icon" />
-        </a>
-      </div>
-    </header>
+    <%- include('partials/header') %>
 
-  </body> 
+    <div class="stats-wrapper">
+      <h2>📊 Your Statistics</h2>
+      <ul class="stats-list">
+        <li><strong>Total Words Contributed:</strong> <%= totalWords %></li>
+        <li><strong>Sessions Joined:</strong> <%= sessionsJoined %></li>
+        <li>
+          <strong>Top Contributor Times:</strong> <%= noOfTopContributions %>
+        </li>
+      </ul>
+    </div>
+
+    <div class="leaderboard-wrapper">
+      <h2>🏅 Global Leaderboard (Top 10)</h2>
+      <ol class="leaderboard-list">
+        <% if (leaderboard && leaderboard.length) { %> <%
+        leaderboard.forEach((user, index) => { %>
+        <li>
+          <strong><%= user.username %></strong><br />
+          Words: <%= user.totalWords || 0 %> | Sessions: <%= user.sessionsJoined
+          || 0 %> | Top Contributor: <%= user.noOfTopContributions || 0 %>
+        </li>
+        <% }); %> <% } else { %>
+        <li>No data available.</li>
+        <% } %>
+      </ol>
+    </div>
+
+    <%- include('partials/footer') %>
+  </body>
+</html>

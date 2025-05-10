@@ -8,25 +8,28 @@
     <title>Context - Join Session</title>
   </head>
   <body>
-    <!-- Navbar -->
-    <%- include('partials/header') %>
-    <main>
-      <div class="join-session">
-        <h2>Join Session</h2>
-        <form action="/joinsession" method="POST">
-          <label for="access-code">Access Code</label>
-          <input
-            type="text"
-            id="access-code"
-            name="accessCode"
-            placeholder="---- ----"
-            required
-          />
-          <button type="submit">Join</button>
-        </form>
-      </div>
-    </main>
+    <div class="wrapper">
+      <!-- Navbar -->
+      <%- include('partials/header') %>
 
-    <script type="module" src="js/javascriptexe.js"></script>
+      <main class="main-content">
+        <div class="join-session">
+          <h2>Join Session</h2>
+          <form action="/joinsession" method="POST">
+            <label for="access-code">Access Code</label>
+            <input
+              type="text"
+              id="access-code"
+              name="accessCode"
+              placeholder="---- ----"
+              required
+            />
+            <button type="submit">Join</button>
+          </form>
+        </div>
+      </main>
+
+      <%- include('partials/footer') %>
+    </div>
   </body>
 </html>

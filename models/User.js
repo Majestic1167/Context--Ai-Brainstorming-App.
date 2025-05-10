@@ -32,6 +32,10 @@ const userSchema = new mongoose.Schema(
       default: false,
     },
 
+    isBlocked: {
+      type: Boolean,
+      default: false,
+    },
     // Extra user info
     profilePicture: {
       type: String,
@@ -47,6 +51,11 @@ const userSchema = new mongoose.Schema(
       default: 0,
     },
     sessionsJoined: {
+      type: Number,
+      default: 0,
+    },
+
+    noOfTopContributions: {
       type: Number,
       default: 0,
     },

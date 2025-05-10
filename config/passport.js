@@ -41,7 +41,11 @@ passport.use(
 
 // Serialize user to save user id in session
 passport.serializeUser((user, done) => {
-  done(null, user.id);
+  done(null, {
+    _id: user._id,
+    username: user.username,
+    isAdmin: user.isAdmin, // Include the isAdmin field here
+  });
 });
 
 // Deserialize user to retrieve the user object from the session

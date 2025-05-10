@@ -13,3 +13,10 @@ export function redirectIfAuthenticated(req, res, next) {
   }
   next();
 }
+
+export function ensureAdmin(req, res, next) {
+  if (req.isAuthenticated() && req.session.user && req.session.user.isAdmin) {
+    return next();
+  }
+  res.redirect("/nonauthorized");
+}

@@ -1,0 +1,76 @@
+.projects-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 1rem;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.projects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.project-card {
+  background: linear-gradient(135deg, #9c3ebf, #c460ff);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-5px);
+  background: linear-gradient(135deg, #810f97, #a341d1);
+}
+
+.project-title h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #fff;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.project-theme {
+  font-style: italic;
+  color: #e0dfff;
+  font-size: 0.95rem;
+  margin-bottom: 0.75rem;
+}
+
+.project-summary {
+  color: #f5f5f5;
+  font-size: 1rem;
+  line-height: 1.6;
+  transition: all 0.4s ease;
+  padding-top: 0.5rem;
+}
+
+.project-summary.show {
+  display: block;
+}
+
+/*
+.project-details {
+  visibility: hidden;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+
+.project-details.show {
+  max-height: 500px; 
+}*/
+
+.project-details {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease, opacity 0.4s ease;
+}
+
+.project-details.show {
+  max-height: 300px;
+  opacity: 1;
+}

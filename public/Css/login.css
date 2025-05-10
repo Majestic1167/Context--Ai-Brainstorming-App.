@@ -10,7 +10,7 @@ header {
   top: 0;
   left: 0;
   z-index: 1000;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);  /* Subtle shadow for depth */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Subtle shadow for depth */
 }
 
 .logo {
@@ -26,9 +26,10 @@ header {
   display: flex;
   flex-direction: column;
   align-items: center;
+
   justify-content: center;
-  margin-top: 40px; 
-    /* Prevent overlap with the fixed header */
+  margin-top: 40px;
+  /* Prevent overlap with the fixed header */
 }
 
 /* Login Box */
@@ -36,6 +37,7 @@ header {
   background-color: rgba(0, 0, 0, 0.85); /* Slightly darker background */
   padding: 40px 30px;
   border-radius: 12px;
+
   text-align: center;
   width: 380px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4); /* Box shadow for depth */

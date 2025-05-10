@@ -10,7 +10,6 @@ import {
   postjoinsession,
   getFirstRoundHostPage,
   getNextRoundPage,
-  terminateSession,
 } from "../controllers/sessioncontroller.js";
 
 import { ensureAuthenticated, ensureHost } from "../middlewares/sessionAuth.js";
@@ -98,27 +97,6 @@ router.get(
       console.error("Error loading host-started session:", err);
       res.status(500).send("Error loading session");
     }
-  }
-);
-
-// 4️⃣ Optional terminate / restart routes
-router.delete(
-  "/terminate-session/:sessionId",
-  ensureAuthenticated,
-  ensureHost,
-  async (req, res) => {
-    // your terminate logic here…
-    res.json({ message: "Session terminated" });
-  }
-);
-
-router.get(
-  "/restart-session/:sessionId",
-  ensureAuthenticated,
-  ensureHost,
-  async (req, res) => {
-    // your restart logic here…
-    res.redirect("/createsession");
   }
 );
 

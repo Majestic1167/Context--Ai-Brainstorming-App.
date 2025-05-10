@@ -9,18 +9,20 @@
   <!-- Navbar -->
   <header>
     <div class="logo">
-      <img src="/images/Pagelogo.png" alt="Context Logo" class="logo-icon" />
-      Context
+      <img src="/images/Header_logo.png" alt="Context Logo" class="logo-icon" />
     </div>
 
     <nav>
       <ul>
         <!-- Dynamically change Home link based on login status -->
         <li>
-          <a href="">Home</a>
+          <a
+            href="<%= typeof user !== 'undefined' && user ? '/Loggedin' : '/' %>"
+            >Home</a
+          >
         </li>
         <li><a href="/about">About</a></li>
-        <li><a href="#">Community</a></li>
+        <li><a href="/community">Community</a></li>
       </ul>
     </nav>
 
@@ -28,11 +30,12 @@
     <% if (typeof user !== 'undefined' && user) { %>
     <div class="profile-container">
       <img
-        src="<%= user && user.profilePicture ? user.profilePicture : '/images/user.png' %>"
+        src="<%= user && user.profilePicture ? '/uploads/profilepictures/' + user.profilePicture : '/images/user.png' %>"
         alt="Profile"
         class="profile-icon"
         id="profile-icon"
       />
+
       <div class="dropdown-menu hidden" id="dropdown-menu">
         <a href="/editprofile">Edit Profile</a>
         <a href="/statistics">Statistics</a>

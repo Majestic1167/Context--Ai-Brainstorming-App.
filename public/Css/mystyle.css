@@ -518,6 +518,10 @@ nav ul li a:hover {
   box-sizing: border-box;
 }
 
+.welcome {
+  padding: 10px 5px;
+}
+
 /* About Section Styling */
 .about {
   padding: 20px;
@@ -669,4 +673,99 @@ nav ul li a:hover {
   margin: 5px;
 }
 
+.stats-wrapper {
+  max-width: 600px;
+  margin: 80px auto;
+  padding: 30px;
+  background: #34b5e8;
+  color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
 
+.stats-wrapper h2 {
+  margin-bottom: 25px;
+  font-size: 24px;
+}
+
+.stats-list {
+  list-style: none;
+  padding: 0;
+}
+
+.stats-list li {
+  margin: 12px 0;
+  font-size: 18px;
+}
+
+/*Footer Styling*/
+
+.wrapper {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+footer {
+  background-color: #030404;
+  color: white;
+  padding: 10px 0;
+  text-align: center;
+  margin-top: 50px;
+
+  width: 100%;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  padding: 0 20px;
+}
+
+.footer-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 5px;
+}
+
+footer p {
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.footer-logo-icon {
+  width: 80px;
+  height: 40px;
+  margin-right: 10px;
+}
+
+footer a {
+  color: white;
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
+
+.leaderboard-wrapper {
+  margin-top: 2rem;
+  padding: 1rem;
+  background: #a2cb27;
+  border-radius: 8px;
+}
+
+.leaderboard-list {
+  padding-left: 1.2rem;
+}
+
+.leaderboard-list li {
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+}

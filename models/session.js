@@ -14,6 +14,15 @@ const sessionSchema = new mongoose.Schema({
     default: "waiting",
   },
 
+  // ✅ New fields for AI summary and contributor
+  aiSummary: { type: String }, // The generated AI summary
+  mostInfluentialContributor: {
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    username: { type: String },
+    contributionCount: { type: Number },
+    wordsListed: [{ type: String }],
+  },
+
   createdAt: { type: Date, default: Date.now },
 });
 

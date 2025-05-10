@@ -1,11 +1,16 @@
 import express from "express";
 const router = express.Router();
 
+import upload from "../middlewares/multer.js";
+import { handleEditProfile } from "../controllers/Usercontroller.js";
+
 import {
   getstatisticspage,
   getmyprojectpage,
   geteditprofilepage,
 } from "../controllers/Usercontroller.js";
+
+import { ensureAuthenticated } from "../middlewares/Authentication.js";
 
 router.get("/statistics", getstatisticspage);
 router.get("/myproject", getmyprojectpage);
@@ -22,4 +27,10 @@ router.get("/logout", (req, res, next) => {
   });
 });
 
+router.post(
+  "/editprofile",
+  ensureAuthenticated, // Ensure the user is authenticated before updating
+  upload.single("profilePicture"), // Handle profile picture upload using Multer
+  handleEditProfile // Your controller logic for saving changes
+);
 export default router;

@@ -1,0 +1,104 @@
+/* mystyle.css */
+
+/* Layout */
+.community-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  background-color: #22aabe;
+  margin-bottom: 10px;
+}
+
+/* Welcome Section */
+.community-welcome-section {
+  text-align: center;
+  padding-bottom: 2rem;
+}
+
+.community-welcome-section h1 {
+  font-size: 2.5rem;
+  color: #1e2d3b;
+}
+
+.community-welcome-section p {
+  font-size: 1.1rem;
+  color: #4a4a4a;
+}
+
+/* How It Works */
+.community-how-it-works {
+  margin-top: 2rem;
+  padding: 1rem 0;
+}
+
+.community-how-it-works h2 {
+  font-size: 1.75rem;
+  color: #2a3f54;
+}
+
+.community-how-it-works ul {
+  padding-left: 1.5rem;
+  line-height: 1.8;
+  color: #444;
+}
+
+/* Guidelines */
+.community-guidelines {
+  margin-top: 2rem;
+}
+
+.community-guidelines h2 {
+  color: #2a3f54;
+}
+
+.community-guidelines ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  color: #5a5a5a;
+}
+
+/* Featured Sessions */
+.community-featured-sessions {
+  margin-top: 2rem;
+}
+
+.community-featured-sessions h2 {
+  color: #2a3f54;
+}
+
+.community-featured-sessions ul {
+  list-style: circle;
+  padding-left: 1.5rem;
+  color: #444;
+}
+
+/* Get Involved */
+.community-get-involved {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.community-get-involved h2 {
+  color: #2a3f54;
+}
+
+.community-get-involved p {
+  margin-bottom: 1rem;
+  color: #4a4a4a;
+}
+
+/* Buttons */
+.btn {
+  background-color: #4f46e5;
+  color: #fff;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+  background-color: #4338ca;
+}
