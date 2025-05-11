@@ -291,19 +291,18 @@ export function initSocket(server) {
 
         const prompt = `
 "role": "As a collaborative AI content generator",
-"input": "You will receive a list of words created by users during a brainstorming session",
+"input": "You will receive a list of words created by users during a brainstorming session.",
 Theme: "${session.theme}"
 Words: ${wordsWithUsernames}
 "steps": [
-  "Analyze the list of words and eliminate the ones that not belong to the theme",
-  "Generate a creative idea based on the words provided by the users in the brainstorming session",
-  "Identify which user contributed the most words or the most central ones in the text"
+  "Analyze the list of words and eliminate the ones that do not belong to the theme.",
+  "Generate a creative idea based on the words provided by the users in the brainstorming session.",
+  "Identify which user contributed the most words or the most central ones used in the text."
 ],
-"expectation": "Produce a JSON object with three fields: the list of words,
- the generated text, and the most influential contributor. For the contributor, 
- include their name and an array of the exact words they contributed.Use the key "words" for the list of contributed words.
-"
-
+"expectation": "Produce a JSON object with exactly three fields: (1) 'words' - an array of all theme-relevant words from the session
+ input that are actually used in the generated text, (2) 'generated_text' - the full creative idea using
+  the selected words, and (3) 'most_influential_contributor' - an object with 'name' (username) 
+  and 'words' (an array of only the words they contributed that appear in the generated text)."
 `;
 
         console.log("🧠 Final AI Prompt being sent:\n", prompt);
@@ -334,6 +333,7 @@ Words: ${wordsWithUsernames}
 
         // 6. Parse and save the AI summary and contributor to the DB
         try {
+          /*
           const cleaned = aiResponse
             .replace(/<think>/gi, "")
             .replace(/<\/think>/gi, "")
@@ -343,10 +343,21 @@ Words: ${wordsWithUsernames}
 
           const parsed = JSON.parse(cleaned);
 
-          const generatedText =
-            parsed.generated_text || "No concept generated.";
-          const contributor = parsed.most_influential_contributor || {};
+          // Check if parsed data is valid
+          if (typeof parsed !== "object" || parsed === null) {
+            console.error("Parsed content is not an object", parsed);
+            return;
+          }
 
+          const generatedText =
+            parsed.generated_text ||
+            parsed.generated_idea ||
+            parsed.generatedText ||
+            parsed.generatedIdea ||
+            "No concept generated.";
+
+          // Extract and validate contributor data
+          let contributor = parsed.most_influential_contributor || {};
           const username =
             contributor.username ||
             contributor.user ||
@@ -363,17 +374,100 @@ Words: ${wordsWithUsernames}
           const wordsListed = Array.isArray(
             contributor.words_listed ||
               contributor.words ||
-              contributor.words_contributed
+              contributor.words_contributed ||
+              parsed.words ||
+              parsed.word_list ||
+              parsed.final_wordlist?.words
           )
             ? contributor.words_listed ||
               contributor.words ||
-              contributor.words_contributed
+              contributor.words_contributed ||
+              parsed.words ||
+              parsed.word_list ||
+              parsed.final_wordlist?.words
             : [];
 
+          // Ensure contributor exists before saving to the database
           const user = await User.findOne({ username });
 
           if (user) {
-            // 🔼 Increment the user's top contributions count
+            // Increment the user's top contributions count
+            await User.findByIdAndUpdate(user._id, {
+              $inc: { noOfTopContributions: 1 },
+            });
+          }
+
+          console.log(generatedText);
+
+          await Session.findByIdAndUpdate(sessionId, {
+            aiSummary: generatedText,
+            mostInfluentialContributor: {
+              userId: user?._id || null,
+              username,
+              contributionCount,
+              wordsListed,
+            },
+            status: "completed",
+          });*/
+
+          const cleaned = aiResponse
+            .replace(/<think>/gi, "")
+            .replace(/<\/think>/gi, "")
+            .replace(/```json|```/gi, "")
+            .replace(/\/\/.*$/gm, "")
+            .trim();
+
+          const parsed = JSON.parse(cleaned);
+
+          // Check if parsed data is valid
+          if (typeof parsed !== "object" || parsed === null) {
+            console.error("Parsed content is not an object", parsed);
+            return;
+          }
+
+          const generatedText =
+            parsed.generated_text ||
+            parsed.generated_idea ||
+            parsed.generatedText ||
+            parsed.generatedIdea ||
+            "No concept generated.";
+
+          // Extract and validate contributor data
+          let contributor = parsed.most_influential_contributor || {};
+          const username =
+            contributor.username ||
+            contributor.user ||
+            contributor.user_name ||
+            contributor.name ||
+            "Unknown";
+
+          const contributionCount =
+            contributor.contribution_count ||
+            contributor.number_of_words ||
+            contributor.word_count ||
+            0;
+
+          const wordsListed = Array.isArray(
+            contributor.words_listed ||
+              contributor.words ||
+              contributor.words_contributed ||
+              parsed.words ||
+              parsed.word_list ||
+              parsed.final_wordlist?.words
+          )
+            ? contributor.words_listed ||
+              contributor.words ||
+              contributor.words_contributed ||
+              parsed.words ||
+              parsed.word_list ||
+              parsed.final_wordlist?.words
+            : [];
+
+          // Ensure contributor exists before saving to the database
+          const user = await User.findOne({ username });
+
+          if (user) {
+            // Increment the user's top contributions count
             await User.findByIdAndUpdate(user._id, {
               $inc: { noOfTopContributions: 1 },
             });

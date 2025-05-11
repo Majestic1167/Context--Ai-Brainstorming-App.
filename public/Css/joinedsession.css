@@ -247,3 +247,18 @@ button:hover {
   font-weight: 500;
   color: #333;
 }
+
+html,
+body {
+  height: 100%;
+}
+
+.aboutmaincss {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
+}

@@ -1,28 +1,33 @@
-/* mystyle.css */
-
 /* Layout */
 .community-container {
   max-width: 960px;
   margin: 0 auto;
+  margin: 60px auto 20px;
   padding: 40px 20px;
-  background-color: #22aabe;
-  margin-bottom: 10px;
+  background: linear-gradient(to bottom right, #22aabe, #1e90a2);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
 }
 
 /* Welcome Section */
 .community-welcome-section {
   text-align: center;
   padding-bottom: 2rem;
+  animation: fadeIn 1s ease-in-out;
 }
 
 .community-welcome-section h1 {
-  font-size: 2.5rem;
+  font-size: 2.75rem;
   color: #1e2d3b;
+  margin-bottom: 0.5rem;
 }
 
 .community-welcome-section p {
-  font-size: 1.1rem;
-  color: #4a4a4a;
+  font-size: 1.2rem;
+  color: #333;
+  max-width: 700px;
+  margin: 0 auto;
 }
 
 /* How It Works */
@@ -32,14 +37,15 @@
 }
 
 .community-how-it-works h2 {
-  font-size: 1.75rem;
-  color: #2a3f54;
+  font-size: 1.85rem;
+  color: #17384a;
+  margin-bottom: 0.5rem;
 }
 
 .community-how-it-works ul {
   padding-left: 1.5rem;
   line-height: 1.8;
-  color: #444;
+  color: #222;
 }
 
 /* Guidelines */
@@ -48,13 +54,13 @@
 }
 
 .community-guidelines h2 {
-  color: #2a3f54;
+  color: #17384a;
 }
 
 .community-guidelines ul {
   list-style-type: disc;
   padding-left: 1.5rem;
-  color: #5a5a5a;
+  color: #383838;
 }
 
 /* Featured Sessions */
@@ -63,13 +69,13 @@
 }
 
 .community-featured-sessions h2 {
-  color: #2a3f54;
+  color: #17384a;
 }
 
 .community-featured-sessions ul {
   list-style: circle;
   padding-left: 1.5rem;
-  color: #444;
+  color: #222;
 }
 
 /* Get Involved */
@@ -79,26 +85,68 @@
 }
 
 .community-get-involved h2 {
-  color: #2a3f54;
+  color: #17384a;
 }
 
 .community-get-involved p {
   margin-bottom: 1rem;
-  color: #4a4a4a;
+  color: #333;
 }
 
 /* Buttons */
 .btn {
   background-color: #4f46e5;
   color: #fff;
-  padding: 0.6rem 1.2rem;
+  padding: 0.7rem 1.4rem;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   text-decoration: none;
-  font-weight: 500;
-  transition: background-color 0.3s ease;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .btn:hover {
   background-color: #4338ca;
+  transform: scale(1.05);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive: Mobile */
+@media (max-width: 600px) {
+  .community-container {
+    padding: 20px 15px;
+  }
+
+  .community-welcome-section h1 {
+    font-size: 2rem;
+  }
+
+  .community-welcome-section p {
+    font-size: 1rem;
+  }
+
+  .btn {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .community-how-it-works h2,
+  .community-guidelines h2,
+  .community-featured-sessions h2,
+  .community-get-involved h2 {
+    font-size: 1.4rem;
+  }
 }

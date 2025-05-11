@@ -204,7 +204,6 @@ function setupSocketListeners() {
       indicator.style.display = data.isTyping ? "block" : "none";
     }
   });
-
   socket.on("ai-response", (data) => {
     let aiResponse = data.response || "No response";
 
@@ -214,8 +213,6 @@ function setupSocketListeners() {
     aiResponse = aiResponse.replace(/<think>/gi, "").replace(/<\/think>/gi, "");
     aiResponse = aiResponse.replace(/```json|```/gi, "").trim();
     aiResponse = aiResponse.replace(/\/\/.*$/gm, "").trim();
-
-    // Remove backticks around the "Text" field and ensure proper formatting
     aiResponse = aiResponse.replace(/`/g, ""); // Remove all backticks
 
     console.log("Cleaned AI Response:", aiResponse);
@@ -223,11 +220,14 @@ function setupSocketListeners() {
     let parsed;
     try {
       const trimmed = aiResponse.trim();
+
       if (!trimmed.startsWith("{") || !trimmed.endsWith("}")) {
         throw new Error("Response does not look like JSON");
       }
 
       parsed = JSON.parse(trimmed);
+
+      console.log("Parsed AI JSON:", parsed);
 
       if (typeof parsed !== "object" || parsed === null) {
         throw new Error("Parsed content is not an object");
@@ -235,7 +235,7 @@ function setupSocketListeners() {
     } catch (e) {
       console.error("Invalid JSON from AI:", e, aiResponse);
       parsed = {
-        words_list: [],
+        words: [],
         generated_text: "No concept generated.",
         most_influential_contributor: "Unknown",
       };
@@ -243,23 +243,21 @@ function setupSocketListeners() {
 
     const rawContributor = parsed.most_influential_contributor;
 
-    // Support various possible word list keys
-    const words =
-      parsed.words_list ||
-      parsed.words ||
-      parsed.list_of_words ||
-      parsed.word_list ||
-      parsed.selected_words ||
-      (rawContributor?.words && Array.isArray(rawContributor.words)
-        ? rawContributor.words
-        : []) ||
-      [];
+    // Get words from the most influential contributor
+    const contributorWords = rawContributor?.words || [];
 
-    const wordsHTML = words.length
-      ? words.map((word) => `<li>${word}</li>`).join("")
+    const usedWords = Array.isArray(parsed.words) ? parsed.words : [];
+    const wordsHTML = usedWords.length
+      ? usedWords.map((word) => `<li>${word}</li>`).join("")
       : "<li>No words</li>";
 
-    const generatedText = parsed.generated_text || "No concept generated.";
+    const generatedText =
+      parsed.generated_text ||
+      parsed.generated_idea ||
+      parsed.generatedText ||
+      parsed.generatedIdea ||
+      "No concept generated.";
+
     const description =
       typeof generatedText === "string"
         ? generatedText
@@ -271,9 +269,9 @@ function setupSocketListeners() {
 
     if (typeof rawContributor === "string") {
       contributorUser = rawContributor;
-      if (words.length) {
-        contributedWords = words.join(", ");
-        wordCount = words.length;
+      if (contributorWords.length) {
+        contributedWords = contributorWords.join(", ");
+        wordCount = contributorWords.length;
       }
     } else if (typeof rawContributor === "object" && rawContributor !== null) {
       contributorUser =
@@ -297,7 +295,7 @@ function setupSocketListeners() {
         contributedWords = Object.keys(rawContributor.centrality).join(", ");
         wordCount = Object.keys(rawContributor.centrality).length;
       } else if (typeof rawContributor.centrality_score === "number") {
-        contributedWords = words.join(", "); // fallback
+        contributedWords = contributorWords.join(", "); // fallback
         wordCount = rawContributor.centrality_score;
       } else if (typeof rawContributor.word_count === "number") {
         wordCount = rawContributor.word_count;
@@ -306,44 +304,41 @@ function setupSocketListeners() {
       }
     }
 
-    // Determine the target for "Go Back"
     const goBackHref = window.userLoggedIn === "true" ? "/Loggedin" : "/";
-
-    // Determine if the user is host or admin
     const isPrivileged =
       window.userIsHost === "true" || window.userIsAdmin === "true";
 
     let buttonsHTML = "";
     if (isPrivileged) {
       buttonsHTML = `
-      <div class="ai-buttons">
-        <a href="/createsession" class="btn btn-primary">🆕 Create New Session</a>
-        <a href="${goBackHref}" class="btn btn-secondary">🔙 Go Back</a>
-      </div>
-    `;
+    <div class="ai-buttons">
+      <a href="/createsession" class="btn btn-primary">🆕 Create New Session</a>
+      <a href="${goBackHref}" class="btn btn-secondary">🔙 Go Back</a>
+    </div>
+  `;
     } else {
       buttonsHTML = `
-      <div class="ai-buttons">
-        <a href="${goBackHref}" class="btn btn-secondary">🔙 Go Back</a>
-      </div>
-    `;
+    <div class="ai-buttons">
+      <a href="${goBackHref}" class="btn btn-secondary">🔙 Go Back</a>
+    </div>
+  `;
     }
 
     const conceptHTML = `
-    <div class="ai-concept-wrapper">
-      <h2>🌟 AI Generated Concept</h2>
-      <h3>💡 Concept Summary</h3>
-      <p>${description}</p>
-      <h3>📝 Words Used</h3>
-      <ul>${wordsHTML}</ul>
-      <h3>🏆 Most Influential Contributor</h3>
-      <p>
-        <strong>${contributorUser}</strong><br>
-        Contributed ${contributedWords} words (${wordCount})
-      </p>
-      ${buttonsHTML}
-    </div>
-  `;
+  <div class="ai-concept-wrapper">
+    <h2>🌟 AI Generated Concept</h2>
+    <h3>💡 Concept Summary</h3>
+    <p>${description}</p>
+    <h3>📝 Words Used</h3>
+    <ul>${wordsHTML}</ul>
+    <h3>🏆 Most Influential Contributor</h3>
+    <p>
+      <strong>${contributorUser}</strong><br>
+      Contributed ${contributedWords} words (${wordCount})
+    </p>
+    ${buttonsHTML}
+  </div>
+`;
 
     const aiConceptContent = document.getElementById("ai-concept-content");
     aiConceptContent.innerHTML = conceptHTML;

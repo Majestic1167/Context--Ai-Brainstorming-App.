@@ -5,37 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/Css/mystyle.css" />
     <link rel="stylesheet" href="/Css/myprojects.css" />
+    <link rel="stylesheet" href="/css/about.css" />
+
     <title>My Projects</title>
   </head>
   <body>
-    <%- include('partials/header') %>
+    <div class="aboutmaincss">
+      <%- include('partials/header') %>
+      <main>
+        <div class="projects-container">
+          <h1>My Recent Projects</h1>
 
-    <div class="projects-container">
-      <h1>My Recent Projects</h1>
+          <% if (sessions.length === 0) { %>
+          <p>You are not part of any projects at the moment.</p>
+          <% } else { %>
+          <div class="projects-list">
+            <% sessions.forEach((session, index) => { %>
+            <div class="project-card" data-index="<%= index %>">
+              <div class="project-header">
+                <div class="project-title">
+                  <h2><%= session.sessionName %></h2>
+                </div>
+              </div>
+              <div class="project-theme">Theme: <%= session.theme %></div>
 
-      <% if (sessions.length === 0) { %>
-      <p>You are not part of any projects at the moment.</p>
-      <% } else { %>
-      <div class="projects-list">
-        <% sessions.forEach((session, index) => { %>
-        <div class="project-card" data-index="<%= index %>">
-          <div class="project-header">
-            <div class="project-title">
-              <h2><%= session.sessionName %></h2>
+              <!-- Initially, set display to none -->
+              <div class="project-details" id="title">
+                <p><%= session.aiSummary || "No summary available." %></p>
+              </div>
             </div>
+            <% }); %>
           </div>
-          <div class="project-theme">Theme: <%= session.theme %></div>
-
-          <!-- Initially, set display to none -->
-          <div class="project-details" id="title">
-            <p><%= session.aiSummary || "No summary available." %></p>
-          </div>
+          <% } %>
         </div>
-        <% }); %>
-      </div>
-      <% } %>
+      </main>
+      <%- include('partials/footer') %>
     </div>
-
-    <%- include('partials/footer') %>
   </body>
 </html>

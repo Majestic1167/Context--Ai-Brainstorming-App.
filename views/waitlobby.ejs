@@ -8,169 +8,172 @@
     <link rel="stylesheet" href="/Css/joinedsession.css" />
   </head>
   <body>
-    <%- include('partials/header') %>
-
-    <div
-      class="joined-session-container"
-      id="joined-session-container"
-      data-session-id="<%= session._id %>"
-      data-user-id="<%= user._id %>"
-      data-username="<%= user.username %>"
-      data-timer="<%= session.timer %>"
-    >
-      <!-- Header -->
-      <div class="joined-header-section">
+    <div class="aboutmaincss">
+      <%- include('partials/header') %>
+      <main>
         <div
-          class="joined-timer"
-          id="session-timer"
-          data-timer="<%= session.timer %>"
-        >
-          <%= Math.floor(session.timer/60) %>:<%= (session.timer %
-          60).toString().padStart(2,'0') %>
-        </div>
-
-        <div class="joined-session-name"><%= session.sessionName %></div>
-        <div class="joined-theme"><%= session.theme %></div>
-        <% if (isHost && !session.started) { %>
-        <div class="joined-access-code">
-          <strong>Access Code:</strong>
-          <span class="code"><%= session.accessCode %></span>
-        </div>
-        <% } %>
-      </div>
-
-      <!-- Participants -->
-      <div class="participants-list" id="participants-list">
-        <h3>
-          Participants (<span id="participant-count"
-            ><%= session.participants.length %></span
-          >)
-        </h3>
-
-        <!-- Host -->
-        <div class="participant host">
-          <img
-            src="<%= session.hostId && session.hostId.profilePicture ? '/images/profilepictures/' + session.hostId.profilePicture : '/images/default-avatar.png' %>"
-            alt="Host"
-            class="participant-avatar"
-          />
-
-          <div class="participant-info">
-            <span class="username"
-              ><%= session.hostId && session.hostId.username ?
-              session.hostId.username : 'Unknown User' %></span
-            >
-            <span class="badge host-badge">Host</span>
-          </div>
-        </div>
-
-        <!-- Other participants -->
-        <% session.participants.forEach(function(p) { %> <% if (p._id.toString()
-        !== session.hostId._id.toString()) { %>
-
-        <div class="participant">
-          <img
-            src="<%= p.profilePicture ? '/images/profilepictures/' + p.profilePicture : '/images/default-avatar.png' %>"
-            alt="<%= p.username || 'Participant' %>"
-            class="participant-avatar"
-          />
-
-          <div class="participant-info">
-            <span class="username"><%= p.username || 'Unknown' %></span>
-          </div>
-        </div>
-        <% } %> <% }); %>
-      </div>
-
-      <!-- Main Grid -->
-      <div class="joined-content-grid">
-        <!-- Chat -->
-        <div class="joined-chat-section" style="display: none">
-          <h3 class="joined-chat-title">Chat</h3>
-          <div class="joined-chat-box" id="chat-messages">
-            <p class="joined-placeholder-text">Start writing your ideas</p>
-          </div>
-          <!-- chat form (hidden until session starts) -->
-          <form id="chat-form" class="input-section">
-            <input
-              type="text"
-              id="chat-input"
-              placeholder="Write here"
-              autocomplete="off"
-            />
-            <button type="submit">Send</button>
-          </form>
-          <div id="typing-indicator" style="display: none"></div>
-        </div>
-
-        <!-- AI Generated Concept Section (Initially hidden) -->
-        <div id="ai-generated-concept" style="display: none">
-          <h3 class="ai-concept-title">AI Generated Concept</h3>
-          <div id="ai-concept-content"></div>
-        </div>
-
-        <!-- AI Loading Message (hidden initially) -->
-        <div
-          id="ai-loading-message"
-          style="display: none; text-align: center; margin-top: 2rem"
-        >
-          <h3>AI is generating your concept...</h3>
-        </div>
-
-        <!-- AI Error Message (hidden initially) -->
-        <div
-          id="ai-error-message"
-          style="
-            display: none;
-            color: red;
-            text-align: center;
-            margin-top: 2rem;
-          "
-        >
-          <h3>⚠️ Failed to generate concept. Please try again later.</h3>
-        </div>
-
-        <!-- Brainstorming -->
-        <div class="joined-brainstorming-section" style="display: none">
-          <h3 class="joined-brainstorming-title">Brainstorming Ideas</h3>
-          <div class="joined-ideas-box" id="ideas-container">
-            <!-- Ideas will be displayed here -->
-          </div>
-
-          <!-- One-word idea submission form (hidden until session starts) -->
-          <form id="idea-form" class="idea-form">
-            <input
-              type="text"
-              id="idea-input"
-              placeholder="Enter one word..."
-              autocomplete="off"
-              required
-            />
-            <button type="submit">Submit</button>
-          </form>
-          <div id="idea-warning" style="color: red; display: none">
-            Only one word allowed!
-          </div>
-        </div>
-      </div>
-
-      <!-- “Start” button / waiting message -->
-      <% if (isHost) { %>
-      <div class="joined-wait-message">
-        <p>You are the host!</p>
-        <button
-          id="start-session-btn"
+          class="joined-session-container"
+          id="joined-session-container"
           data-session-id="<%= session._id %>"
+          data-user-id="<%= user._id %>"
+          data-username="<%= user.username %>"
           data-timer="<%= session.timer %>"
         >
-          PRESS TO START
-        </button>
-      </div>
-      <% } else { %>
-      <div class="joined-wait-message">WAIT FOR THE HOST TO START</div>
-      <% } %>
+          <!-- Header -->
+          <div class="joined-header-section">
+            <div
+              class="joined-timer"
+              id="session-timer"
+              data-timer="<%= session.timer %>"
+            >
+              <%= Math.floor(session.timer/60) %>:<%= (session.timer %
+              60).toString().padStart(2,'0') %>
+            </div>
+
+            <div class="joined-session-name"><%= session.sessionName %></div>
+            <div class="joined-theme"><%= session.theme %></div>
+            <% if (isHost && !session.started) { %>
+            <div class="joined-access-code">
+              <strong>Access Code:</strong>
+              <span class="code"><%= session.accessCode %></span>
+            </div>
+            <% } %>
+          </div>
+
+          <!-- Participants -->
+          <div class="participants-list" id="participants-list">
+            <h3>
+              Participants (<span id="participant-count"
+                ><%= session.participants.length %></span
+              >)
+            </h3>
+
+            <!-- Host -->
+            <div class="participant host">
+              <img
+                src="<%= session.hostId && session.hostId.profilePicture ? '/images/profilepictures/' + session.hostId.profilePicture : '/images/default-avatar.png' %>"
+                alt="Host"
+                class="participant-avatar"
+              />
+
+              <div class="participant-info">
+                <span class="username"
+                  ><%= session.hostId && session.hostId.username ?
+                  session.hostId.username : 'Unknown User' %></span
+                >
+                <span class="badge host-badge">Host</span>
+              </div>
+            </div>
+
+            <!-- Other participants -->
+            <% session.participants.forEach(function(p) { %> <% if
+            (p._id.toString() !== session.hostId._id.toString()) { %>
+
+            <div class="participant">
+              <img
+                src="<%= p.profilePicture ? '/images/profilepictures/' + p.profilePicture : '/images/default-avatar.png' %>"
+                alt="<%= p.username || 'Participant' %>"
+                class="participant-avatar"
+              />
+
+              <div class="participant-info">
+                <span class="username"><%= p.username || 'Unknown' %></span>
+              </div>
+            </div>
+            <% } %> <% }); %>
+          </div>
+
+          <!-- Main Grid -->
+          <div class="joined-content-grid">
+            <!-- Chat -->
+            <div class="joined-chat-section" style="display: none">
+              <h3 class="joined-chat-title">Chat</h3>
+              <div class="joined-chat-box" id="chat-messages">
+                <p class="joined-placeholder-text">Start writing your ideas</p>
+              </div>
+              <!-- chat form (hidden until session starts) -->
+              <form id="chat-form" class="input-section">
+                <input
+                  type="text"
+                  id="chat-input"
+                  placeholder="Write here"
+                  autocomplete="off"
+                />
+                <button type="submit">Send</button>
+              </form>
+              <div id="typing-indicator" style="display: none"></div>
+            </div>
+
+            <!-- AI Generated Concept Section (Initially hidden) -->
+            <div id="ai-generated-concept" style="display: none">
+              <h3 class="ai-concept-title">AI Generated Concept</h3>
+              <div id="ai-concept-content"></div>
+            </div>
+
+            <!-- AI Loading Message (hidden initially) -->
+            <div
+              id="ai-loading-message"
+              style="display: none; text-align: center; margin-top: 2rem"
+            >
+              <h3>AI is generating your concept...</h3>
+            </div>
+
+            <!-- AI Error Message (hidden initially) -->
+            <div
+              id="ai-error-message"
+              style="
+                display: none;
+                color: red;
+                text-align: center;
+                margin-top: 2rem;
+              "
+            >
+              <h3>⚠️ Failed to generate concept. Please try again later.</h3>
+            </div>
+
+            <!-- Brainstorming -->
+            <div class="joined-brainstorming-section" style="display: none">
+              <h3 class="joined-brainstorming-title">Brainstorming Ideas</h3>
+              <div class="joined-ideas-box" id="ideas-container">
+                <!-- Ideas will be displayed here -->
+              </div>
+
+              <!-- One-word idea submission form (hidden until session starts) -->
+              <form id="idea-form" class="idea-form">
+                <input
+                  type="text"
+                  id="idea-input"
+                  placeholder="Enter one word..."
+                  autocomplete="off"
+                  required
+                />
+                <button type="submit">Submit</button>
+              </form>
+              <div id="idea-warning" style="color: red; display: none">
+                Only one word allowed!
+              </div>
+            </div>
+          </div>
+
+          <!-- “Start” button / waiting message -->
+          <% if (isHost) { %>
+          <div class="joined-wait-message">
+            <p>You are the host!</p>
+            <button
+              id="start-session-btn"
+              data-session-id="<%= session._id %>"
+              data-timer="<%= session.timer %>"
+            >
+              PRESS TO START
+            </button>
+          </div>
+          <% } else { %>
+          <div class="joined-wait-message">WAIT FOR THE HOST TO START</div>
+          <% } %>
+        </div>
+      </main>
+      <%- include('partials/footer') %>
     </div>
-    <%- include('partials/footer') %>
 
     <script>
       window.userLoggedIn =

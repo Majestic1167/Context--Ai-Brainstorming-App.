@@ -4,6 +4,8 @@ import fs from "fs"; // For file management (deleting old profile pictures)
 
 import Session from "../models/session.js";
 
+import path from "path"; // <-- MISSING
+
 export async function getstatisticspage(req, res) {
   try {
     const userId = req.session.userId;
@@ -88,6 +90,11 @@ export async function handleEditProfile(req, res) {
       }
 
       user.profilePicture = req.file.filename;
+    }
+
+    // Handle profile picture removal if requested
+    if (req.body.removePicture === "true") {
+      user.profilePicture = "default.jpg";
     }
 
     await user.save();
