@@ -52,17 +52,6 @@
   display: block;
 }
 
-/*
-.project-details {
-  visibility: hidden;
-  overflow: hidden;
-  transition: max-height 0.4s ease;
-}
-
-.project-details.show {
-  max-height: 500px; 
-}*/
-
 .project-details {
   max-height: 0;
   opacity: 0;
@@ -73,4 +62,12 @@
 .project-details.show {
   max-height: 300px;
   opacity: 1;
+}
+
+h1 {
+  text-align: center;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  color: white;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }

@@ -250,8 +250,9 @@ export function initSocket(server) {
     });
 
     socket.on("timer-finished", async (data) => {
+      let sessionId; // Define sessionId outside the try block to make it accessible in all parts of the code
       try {
-        const sessionId = data?.sessionId;
+        sessionId = data?.sessionId;
         const incomingIdeas = data?.ideas;
 
         if (!sessionId) {
@@ -333,83 +334,6 @@ Words: ${wordsWithUsernames}
 
         // 6. Parse and save the AI summary and contributor to the DB
         try {
-          /*
-          const cleaned = aiResponse
-            .replace(/<think>/gi, "")
-            .replace(/<\/think>/gi, "")
-            .replace(/```json|```/gi, "")
-            .replace(/\/\/.*$/gm, "")
-            .trim();
-
-          const parsed = JSON.parse(cleaned);
-
-          // Check if parsed data is valid
-          if (typeof parsed !== "object" || parsed === null) {
-            console.error("Parsed content is not an object", parsed);
-            return;
-          }
-
-          const generatedText =
-            parsed.generated_text ||
-            parsed.generated_idea ||
-            parsed.generatedText ||
-            parsed.generatedIdea ||
-            "No concept generated.";
-
-          // Extract and validate contributor data
-          let contributor = parsed.most_influential_contributor || {};
-          const username =
-            contributor.username ||
-            contributor.user ||
-            contributor.user_name ||
-            contributor.name ||
-            "Unknown";
-
-          const contributionCount =
-            contributor.contribution_count ||
-            contributor.number_of_words ||
-            contributor.word_count ||
-            0;
-
-          const wordsListed = Array.isArray(
-            contributor.words_listed ||
-              contributor.words ||
-              contributor.words_contributed ||
-              parsed.words ||
-              parsed.word_list ||
-              parsed.final_wordlist?.words
-          )
-            ? contributor.words_listed ||
-              contributor.words ||
-              contributor.words_contributed ||
-              parsed.words ||
-              parsed.word_list ||
-              parsed.final_wordlist?.words
-            : [];
-
-          // Ensure contributor exists before saving to the database
-          const user = await User.findOne({ username });
-
-          if (user) {
-            // Increment the user's top contributions count
-            await User.findByIdAndUpdate(user._id, {
-              $inc: { noOfTopContributions: 1 },
-            });
-          }
-
-          console.log(generatedText);
-
-          await Session.findByIdAndUpdate(sessionId, {
-            aiSummary: generatedText,
-            mostInfluentialContributor: {
-              userId: user?._id || null,
-              username,
-              contributionCount,
-              wordsListed,
-            },
-            status: "completed",
-          });*/
-
           const cleaned = aiResponse
             .replace(/<think>/gi, "")
             .replace(/<\/think>/gi, "")
@@ -488,10 +412,22 @@ Words: ${wordsWithUsernames}
 
           console.log("✅ AI summary saved to session:", sessionId);
         } catch (saveErr) {
-          console.error(" Failed to save AI summary to DB:", saveErr.message);
+          console.error("Error during session finalization:", saveErr);
+
+          if (sessionId) {
+            io.to(sessionId).emit("ai-error", {
+              message: "AI response failed.",
+            });
+          }
         }
       } catch (err) {
         console.error("Error during session finalization:", err);
+
+        if (sessionId) {
+          io.to(sessionId).emit("ai-error", {
+            message: "An unexpected error occurred.",
+          });
+        }
       }
     });
 

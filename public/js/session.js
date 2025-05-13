@@ -204,6 +204,7 @@ function setupSocketListeners() {
       indicator.style.display = data.isTyping ? "block" : "none";
     }
   });
+
   socket.on("ai-response", (data) => {
     let aiResponse = data.response || "No response";
 
@@ -348,6 +349,41 @@ function setupSocketListeners() {
       "none";
     document.getElementById("ai-loading-message").style.display = "none";
     document.getElementById("ai-generated-concept").style.display = "block";
+  });
+
+  socket.on("ai-error", (data) => {
+    const goBackHref = window.userLoggedIn === "true" ? "/Loggedin" : "/";
+    const isPrivileged =
+      window.userIsHost === "true" || window.userIsAdmin === "true";
+
+    let buttonsHTML = "";
+    if (isPrivileged) {
+      buttonsHTML = `
+      <div class="ai-buttons" style="margin-top: 1rem;">
+        <a href="/createsession" class="btn btn-primary">🆕 Create New Session</a>
+        <a href="${goBackHref}" class="btn btn-secondary">🔙 Go Back</a>
+      </div>
+    `;
+    } else {
+      buttonsHTML = `
+      <div class="ai-buttons" style="margin-top: 1rem;">
+        <a href="${goBackHref}" class="btn btn-secondary">🔙 Go Back</a>
+      </div>
+    `;
+    }
+
+    const errorHTML = `
+    <h3>⚠️ ${data.message}</h3>
+    ${buttonsHTML}
+  `;
+
+    const errorContainer = document.getElementById("ai-error-message");
+    errorContainer.innerHTML = errorHTML;
+    errorContainer.style.display = "block";
+
+    // Optionally hide loading spinner or concept section
+    document.getElementById("ai-loading-message").style.display = "none";
+    document.getElementById("ai-concept-content").style.display = "none";
   });
 
   socket.on(

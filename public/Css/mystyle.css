@@ -335,7 +335,6 @@ nav ul li a:hover {
   }
 }
 
-/* Profile container */
 .profile-container {
   position: relative;
   display: flex;
@@ -343,19 +342,17 @@ nav ul li a:hover {
   cursor: pointer;
 }
 
-/* Profile Icon */
 .profile-icon {
-  width: 40px; /* Adjust size as needed */
+  width: 40px;
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #ddd; /* Optional border */
+  border: 2px solid #ddd;
   transition: 0.3s ease;
 }
 
-/* Hover Effect */
 .profile-icon:hover {
-  border-color: #4caf50; /* Change border color on hover */
+  border-color: #4caf50;
 }
 
 /* Mobile Responsive */
