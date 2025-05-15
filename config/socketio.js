@@ -1,14 +1,19 @@
 import { Server } from "socket.io";
 import Session from "../models/session.js";
 import User from "../models/User.js";
-
 import { finalizeSessionStats } from "../controllers/sessionStats.js";
 import Idea from "../models/brainstormingidea.js";
 import axios from "axios";
-import { LM_STUDIO_URL } from "../config/lmstudio.js"; // adjust if needed
+import { LM_STUDIO_URL } from "../config/lmstudio.js";
 
 let io;
 
+/**
+ * Initializes Socket.IO server with authentication middleware and
+ * defines all event handlers for user interaction within sessions.
+ *
+ * @param {http.Server} server - The HTTP server instance to bind Socket.IO to
+ */
 export function initSocket(server) {
   io = new Server(server);
 
@@ -24,10 +29,15 @@ export function initSocket(server) {
 
   io.on("connection", (socket) => {
     console.log(
-      `✅ Connection established - ${socket.username} (${socket.userId})`
+      ` Connection established - ${socket.username} (${socket.userId})`
     );
     console.log("A user connected:", socket.id);
 
+    /**
+     * Adds user to a brainstorming room/session.
+     *
+     * @param {Object} roomData - Includes roomId, userId, username
+     */
     socket.on("join room", async (roomData) => {
       const { roomId, userId, username } = roomData;
 
@@ -79,7 +89,7 @@ export function initSocket(server) {
 
         socket.join(roomId);
 
-        // ✅ Send host status
+        //  Send host status
         socket.emit("session-info", { isHost });
 
         console.log(`User ${username} joined room: ${roomId}`);
@@ -118,6 +128,12 @@ export function initSocket(server) {
       }
     });
 
+    /**
+     * Host initiates the brainstorming session.
+     * Notifies participants and increments session counters.
+     *
+     * @param {Object} data - Contains sessionId
+     */
     socket.on("start-session", async ({ sessionId }) => {
       const session = await Session.findById(sessionId)
         .populate("hostId", "username profilePicture")
@@ -131,7 +147,7 @@ export function initSocket(server) {
         isHost: p._id.equals(session.hostId._id),
       }));
 
-      // 🔄 Increment sessionsJoined for each participant
+      //  Increment sessionsJoined for each participant
       await Promise.all(
         session.participants.map((participant) =>
           User.findByIdAndUpdate(participant._id, {
@@ -153,6 +169,11 @@ export function initSocket(server) {
       });
     });
 
+    /**
+     * Broadcasts a chat message within the session room.
+     *
+     * @param {Object} data - Contains message, roomId, username, userId
+     */
     socket.on("chat message", async (data) => {
       try {
         const session = await Session.findById(data.roomId);
@@ -186,6 +207,11 @@ export function initSocket(server) {
       }
     });
 
+    /**
+     * Saves and shares a brainstorming word idea.
+     *
+     * @param {Object} data - Contains word, username, sessionId, userId
+     */
     socket.on("send-idea", async ({ word, username, sessionId, userId }) => {
       if (!sessionId || !userId || !word) {
         console.warn("Missing data in send-idea");
@@ -211,7 +237,7 @@ export function initSocket(server) {
           });
         }
 
-        // 🔄 Increment totalWords for the user
+        //  Increment totalWords for the user
         await User.findByIdAndUpdate(userId, {
           $inc: { totalWords: 1 },
         });
@@ -226,6 +252,11 @@ export function initSocket(server) {
       }
     });
 
+    /**
+     * Broadcasts typing indicator to other users in the room.
+     *
+     * @param {Object} data - Contains roomId, username, isTyping flag
+     */
     socket.on("typing", async (data) => {
       try {
         const session = await Session.findById(data.roomId);
@@ -249,8 +280,14 @@ export function initSocket(server) {
       }
     });
 
+    /**
+     * Finalizes the session, processes all ideas via AI,
+     * broadcasts the summary, and updates the database.
+     *
+     * @param {Object} data - Includes sessionId and optional ideas
+     */
     socket.on("timer-finished", async (data) => {
-      let sessionId; // Define sessionId outside the try block to make it accessible in all parts of the code
+      let sessionId; // Defined sessionId outside  try block to make it accessible in all parts of the code
       try {
         sessionId = data?.sessionId;
         const incomingIdeas = data?.ideas;
@@ -268,7 +305,7 @@ export function initSocket(server) {
 
         console.log("Fetched session:", session); // Logging for debugging
 
-        // 🔐 Ensure only the host can finalize the session
+        //  Ensure only the host can finalize the session
         if (socket.userId !== session.hostId.toString()) {
           console.warn(
             `Unauthorized timer-finished attempt by ${socket.userId}`
@@ -306,7 +343,7 @@ Words: ${wordsWithUsernames}
   and 'words' (an array of only the words they contributed that appear in the generated text)."
 `;
 
-        console.log("🧠 Final AI Prompt being sent:\n", prompt);
+        console.log(" Final AI Prompt being sent:\n", prompt);
 
         // 4. Send prompt to LM Studio
         const payload = {
@@ -410,7 +447,7 @@ Words: ${wordsWithUsernames}
             status: "completed",
           });
 
-          console.log("✅ AI summary saved to session:", sessionId);
+          console.log(" AI summary saved to session:", sessionId);
         } catch (saveErr) {
           console.error("Error during session finalization:", saveErr);
 
@@ -431,6 +468,9 @@ Words: ${wordsWithUsernames}
       }
     });
 
+    /**
+     * Handles user disconnection and updates participant list.
+     */
     socket.on("disconnect", async () => {
       console.log(`User disconnected: ${socket.username}`);
 
@@ -468,6 +508,11 @@ Words: ${wordsWithUsernames}
   });
 }
 
+/**
+ * Returns the initialized Socket.IO instance.
+ *
+ * @returns {Server} io - The active Socket.IO instance
+ */
 export function getIO() {
   if (!io) {
     throw new Error("Socket not initialized");

@@ -39,12 +39,6 @@ export function renderParticipantsList(data) {
       return;
     }
 
-    /*
-    const profileSrc = p.profilePicture?.trim()
-      ? p.profilePicture
-      : "/images/profilepictures/default.jpg";
-*/
-
     const profileSrc = p.profilePicture?.trim()
       ? "/images/profilepictures/" + p.profilePicture
       : "/images/profilepictures/default.jpg";
@@ -80,12 +74,6 @@ export function addParticipantToDOM(participant) {
     (el) => el.textContent === participant.username
   );
   if (exists) return;
-
-  /*
-  const profileImage = participant.profilePicture?.trim()
-    ? participant.profilePicture
-    : "/images/profilepictures/default.jpg";
-*/
 
   const profileImage = participant.profilePicture?.trim()
     ? "/images/profilepictures/" + participant.profilePicture

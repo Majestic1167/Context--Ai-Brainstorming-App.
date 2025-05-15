@@ -29,8 +29,8 @@ router.get("/logout", (req, res, next) => {
 
 router.post(
   "/editprofile",
-  ensureAuthenticated, // Ensure the user is authenticated before updating
-  upload.single("profilePicture"), // Handle profile picture upload using Multer
-  handleEditProfile // Your controller logic for saving changes
+  ensureAuthenticated,
+  upload.single("profilePicture"),
+  handleEditProfile
 );
 export default router;

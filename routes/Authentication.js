@@ -1,5 +1,4 @@
 import express from "express";
-import passport from "passport";
 
 const router = express.Router();
 
@@ -14,6 +13,7 @@ import {
   handleVerifyCode,
   getResetPasswordPage,
   handleResetPassword,
+  handleLogin,
 } from "../controllers/Authenticationcontroller.js";
 
 import {
@@ -22,14 +22,13 @@ import {
 } from "../middlewares/Authentication.js";
 
 router.get("/login", (req, res, next) => {
-  // Clear any existing session when accessing login page
   if (req.isAuthenticated()) {
     req.logout((err) => {
       if (err) {
         console.error("Error logging out:", err);
         return next(err);
       }
-      // After logout, render the login page
+
       res.render("login", { user: null, error: null });
     });
   } else {
@@ -44,12 +43,20 @@ router.get("/Forgotpassword", getForgotpasswordPage);
 router.get("/Verifycode", getverifycodePage);
 router.get("/resetpassword", getResetPasswordPage);
 
+router.post("/login", handleLogin);
 //  login route
 
+/*
 router.post("/login", (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {
     if (err || !user) {
       return res.redirect("/login");
+    }
+    // Check if user is blocked
+    if (user.isBlocked) {
+      return res.render("login", {
+        error: "Your account has been blocked . Please contact support.",
+      });
     }
 
     req.logIn(user, (err) => {
@@ -71,7 +78,7 @@ router.post("/login", (req, res, next) => {
       return res.redirect("/loggedin"); // or wherever you go after login
     });
   })(req, res, next);
-});
+});*/
 
 //router.post("/signup", handleSignup);
 import upload from "../middlewares/multer.js"; // Import the Multer middleware

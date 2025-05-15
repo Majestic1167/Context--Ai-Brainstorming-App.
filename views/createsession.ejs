@@ -5,51 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/css/mystyle.css" />
     <link rel="stylesheet" href="/css/createsession.css" />
+    <link rel="stylesheet" href="/css/about.css" />
 
     <title>Create Session</title>
   </head>
   <body>
     <!-- Navbar -->
-    <%- include('partials/header') %>
+    <div class="aboutmaincss">
+      <%- include('partials/header') %>
 
-    <main>
-      <div class="session-container">
-        <h2>Create Session</h2>
+      <main>
+        <div class="session-container">
+          <h2>Create Session</h2>
 
-        <form action="/create" method="POST">
-          <label for="session-name">Session name</label>
-          <input
-            type="text"
-            id="session-name"
-            name="sessionName"
-            placeholder="Write here"
-            required
-          />
+          <form action="/create" method="POST">
+            <label for="session-name">Session name</label>
+            <input
+              type="text"
+              id="session-name"
+              name="sessionName"
+              placeholder="Write here"
+              required
+            />
 
-          <label for="theme">Theme</label>
-          <input
-            type="text"
-            id="theme"
-            name="theme"
-            placeholder="Write here"
-            required
-          />
+            <label for="theme">Theme</label>
+            <input
+              type="text"
+              id="theme"
+              name="theme"
+              placeholder="Write here"
+              required
+            />
 
-          <label for="timer">Timer</label>
-          <input
-            type="number"
-            id="timer"
-            name="timer"
-            placeholder="90s"
-            value="90"
-            required
-          />
+            <label for="timer">Timer</label>
+            <input
+              type="number"
+              id="timer"
+              name="timer"
+              placeholder="90s"
+              value="90"
+              required
+            />
 
-          <button type="submit" class="create-button">Create</button>
-        </form>
-      </div>
-    </main>
+            <button type="submit" class="create-button">Create</button>
+          </form>
+        </div>
+      </main>
 
-    <%- include('partials/footer') %>
+      <%- include('partials/footer') %>
+    </div>
   </body>
 </html>

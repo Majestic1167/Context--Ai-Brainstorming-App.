@@ -476,12 +476,13 @@ function addSystemMessage(text) {
   chatMessages.appendChild(msg);
 }
 
+/*
 function handleHostOption(path) {
   socket.emit("host-next-action", { path });
 
   // Redirect host immediately
   window.location.href = path;
-}
+}*/
 
 // ---------------------- CLEANUP ----------------------
 

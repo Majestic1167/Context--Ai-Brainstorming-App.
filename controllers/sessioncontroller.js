@@ -20,7 +20,7 @@ export async function postCreateSession(req, res) {
     // Parse timer input from form
     const parsedTimer = parseInt(timer, 10);
 
-    // ✅ Use the exact time the host entered
+    //  Use the exact time the host entered
     const selectedTimer = parsedTimer;
 
     // Create a new session
@@ -220,7 +220,6 @@ export async function terminateSession(req, res) {
         .json({ message: "You are not authorized to terminate this session." });
     }
 
-    // Use deleteOne instead of remove
     await Session.deleteOne({ _id: sessionId });
 
     return res
@@ -234,12 +233,55 @@ export async function terminateSession(req, res) {
   }
 }
 
-export const getHostStartedSession = (req, res) => {
-  const session = req.session; // Assuming session data is stored here
-  const user = req.user || {
-    username: "Unknown User",
-    profilePicture: "/images/default-avatar.png",
-  }; // Safe fallback
+export async function getSessionPage(req, res) {
+  try {
+    const sessionId = req.params.sessionId;
+    const userId = req.session.user._id;
 
-  res.render("waitlobby", { session, user });
-};
+    let session = await Session.findById(sessionId)
+      .populate("hostId", "username profilePicture")
+      .populate("participants", "username profilePicture");
+    if (!session) return res.status(404).send("Session not found");
+
+    const already = session.participants.some(
+      (p) => p._id.toString() === userId
+    );
+    if (!already) {
+      session.participants.push(userId);
+      await session.save();
+      session = await Session.findById(sessionId)
+        .populate("hostId", "username profilePicture")
+        .populate("participants", "username profilePicture");
+    }
+
+    res.render("waitlobby", {
+      session,
+      user: req.session.user,
+      isHost: session.hostId._id.toString() === userId,
+    });
+  } catch (err) {
+    console.error("Error in session controller:", err);
+    res.status(500).send("Internal Server Error");
+  }
+}
+
+export async function getHostStartedSession(req, res) {
+  try {
+    const session = await Session.findById(req.query.sessionId)
+      .populate("hostId", "username profilePicture")
+      .populate("participants", "username profilePicture");
+
+    if (!session) {
+      return res.status(404).send("Session not found");
+    }
+
+    res.render("hoststartedsession", {
+      session,
+      user: req.user,
+      isHost: session.hostId._id.equals(req.user._id),
+    });
+  } catch (err) {
+    console.error("Error loading host-started session:", err);
+    res.status(500).send("Error loading session");
+  }
+}

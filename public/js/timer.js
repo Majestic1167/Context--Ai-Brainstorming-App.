@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const timerDisplay = document.getElementById("session-timer");
   if (!timerDisplay) return;
 
-  // Optional: hide UI until session starts
+  //  hide UI until session starts
   const chatSection = document.querySelector(".joined-chat-section");
   const ideaForm = document.getElementById("idea-form");
   const nextRoundBtn = document.getElementById("next-round-btn");

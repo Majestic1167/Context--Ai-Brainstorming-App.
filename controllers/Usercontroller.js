@@ -1,10 +1,10 @@
-import User from "../models/User.js"; // adjust path as needed
+import User from "../models/User.js";
 
 import fs from "fs"; // For file management (deleting old profile pictures)
 
 import Session from "../models/session.js";
 
-import path from "path"; // <-- MISSING
+import path from "path";
 
 export async function getstatisticspage(req, res) {
   try {
@@ -82,7 +82,7 @@ export async function handleEditProfile(req, res) {
     }
 
     if (req.file) {
-      if (user.profilePicture) {
+      if (user.profilePicture && user.profilePicture !== "default.jpg") {
         const oldPath = `public/images/profilepictures/${user.profilePicture}`;
         if (fs.existsSync(oldPath)) {
           fs.unlinkSync(oldPath);

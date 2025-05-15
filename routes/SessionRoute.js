@@ -10,6 +10,8 @@ import {
   postjoinsession,
   getFirstRoundHostPage,
   getNextRoundPage,
+  getSessionPage,
+  getHostStartedSession,
 } from "../controllers/sessioncontroller.js";
 
 import { ensureAuthenticated, ensureHost } from "../middlewares/sessionAuth.js";
@@ -26,78 +28,9 @@ router.get("/getfirstround", ensureAuthenticated, getFirstRoundHostPage);
 
 router.get("/nextround", ensureAuthenticated, getNextRoundPage);
 
-router.get("/session/:sessionId", ensureAuthenticated, async (req, res) => {
-  try {
-    const sessionId = req.params.sessionId;
-    const userId = req.session.user._id;
+router.get("/session/:sessionId", ensureAuthenticated, getSessionPage);
 
-    let session = await Session.findById(sessionId)
-      .populate("hostId", "username profilePicture")
-      .populate("participants", "username profilePicture");
-    if (!session) return res.status(404).send("Session not found");
-
-    // auto‑join logic
-    const already = session.participants.some(
-      (p) => p._id.toString() === userId
-    );
-    if (!already) {
-      session.participants.push(userId);
-      await session.save();
-      session = await Session.findById(sessionId)
-        .populate("hostId", "username profilePicture")
-        .populate("participants", "username profilePicture");
-    }
-
-    res.render("waitlobby", {
-      session,
-      user: req.session.user,
-      isHost: session.hostId._id.toString() === userId,
-    });
-  } catch (err) {
-    console.error("Error in session route:", err);
-    res.status(500).send("Internal Server Error");
-  }
-});
-
-// Route to handle the "Start" button click
-router.post(
-  "/session/:sessionId/start",
-  ensureAuthenticated,
-  ensureHost,
-  async (req, res) => {
-    const roomId = req.params.sessionId;
-    //( flip session.status in DB)
-    getIO().to(roomId).emit("session started", { roomId });
-    // host redirect or just 200 OK:
-    return res.sendStatus(200);
-  }
-);
-
-router.get(
-  "/hoststartedsession",
-  ensureAuthenticated,
-
-  async (req, res) => {
-    try {
-      const session = await Session.findById(req.query.sessionId)
-        .populate("hostId", "username profilePicture")
-        .populate("participants", "username profilePicture");
-
-      if (!session) {
-        return res.status(404).send("Session not found");
-      }
-
-      // Render the session details on the page
-      res.render("hoststartedsession", {
-        session,
-        user: req.user,
-        isHost: session.hostId._id.equals(req.user._id),
-      });
-    } catch (err) {
-      console.error("Error loading host-started session:", err);
-      res.status(500).send("Error loading session");
-    }
-  }
-);
+//this is not in use beacause i removed the host started session page to waitlobby.ejs
+router.get("/hoststartedsession", ensureAuthenticated, getHostStartedSession);
 
 export default router;

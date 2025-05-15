@@ -5,67 +5,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Context - Dashboard</title>
     <link rel="stylesheet" href="/Css/mystyle.css" />
+    <link rel="stylesheet" href="/Css/about.css" />
   </head>
   <body>
     <!-- Navbar -->
-    <%- include('partials/header') %>
+    <div class="aboutmaincss">
+      <%- include('partials/header') %>
+      <main>
+        <!-- Welcome Section -->
+        <% if (user) { %>
+        <section class="welcome">
+          <h1>Welcome, <%= user.username %>!</h1>
+          <p class="subtitle">
+            Glad to have you back. Here's your dashboard overview.
+          </p>
+        </section>
+        <% } %>
 
-    <!-- Welcome Section -->
-    <% if (user) { %>
-    <section class="welcome">
-      <h1>Welcome, <%= user.username %>!</h1>
-      <p class="subtitle">
-        Glad to have you back. Here's your dashboard overview.
-      </p>
-    </section>
-    <% } %>
+        <!-- Hero Section -->
+        <section class="hero">
+          <div class="text-content">
+            <h3>WELCOME TO CONTEXT!</h3>
+            <p>
+              Unleash your creativity and collaborate in real time. Our
+              AI-powered brainstorming platform helps transform your spontaneous
+              thoughts into structured ideas—all within seconds.
+            </p>
+            <h2>Jump in and start shaping your next big project!</h2>
+            <div class="buttons">
+              <a href="/createsession">
+                <button class="create-session">Create Session</button>
+              </a>
+              <a href="/joinsession">
+                <button class="join-session">Join Session</button>
+              </a>
+            </div>
+          </div>
 
-    <!-- Hero Section -->
-    <section class="hero">
-      <div class="text-content">
-        <h3>WELCOME TO CONTEXT!</h3>
-        <p>
-          Unleash your creativity and collaborate in real time. Our AI-powered
-          brainstorming platform helps transform your spontaneous thoughts into
-          structured ideas—all within seconds.
-        </p>
-        <h2>Jump in and start shaping your next big project!</h2>
-        <div class="buttons">
-          <a href="/createsession">
-            <button class="create-session">Create Session</button>
-          </a>
-          <a href="/joinsession">
-            <button class="join-session">Join Session</button>
-          </a>
-        </div>
-      </div>
+          <div class="image-content">
+            <img
+              src="/images/Afterlogin.png"
+              alt="Brainstorming Session"
+              class="hero-image floating"
+            />
+          </div>
+        </section>
 
-      <div class="image-content">
-        <img
-          src="/images/Afterlogin.png"
-          alt="Brainstorming Session"
-          class="hero-image floating"
-        />
-      </div>
-    </section>
+        <!-- Admin Panel (Only visible to Admins) -->
+        <% if (user && user.isAdmin) { %>
+        <section class="admin-dashboard">
+          <h2>👑 Admin Dashboard</h2>
+          <p>
+            You have administrative privileges. Use the tools below to manage
+            the platform.
+          </p>
+          <div class="admin-buttons">
+            <a href="manageusers">
+              <button class="admin-button">Manage Users</button>
+            </a>
+            <a href="adminsetting">
+              <button class="admin-button">Manage Sessions</button>
+            </a>
+          </div>
+        </section>
 
-    <!-- Admin Panel (Only visible to Admins) -->
-    <% if (user && user.isAdmin) { %>
-    <section class="admin-dashboard">
-      <h2>👑 Admin Dashboard</h2>
-      <p>
-        You have administrative privileges. Use the tools below to manage the
-        platform.
-      </p>
-      <div class="admin-buttons">
-        <a href="manageusers">
-          <button class="admin-button">Manage Users</button>
-        </a>
-        <a href="adminsetting">
-          <button class="admin-button">Manage Sessions</button>
-        </a>
-      </div>
-    </section>
-    <% } %> <%- include('partials/footer') %>
+        <% } %>
+      </main>
+      <%- include('partials/footer') %>
+    </div>
   </body>
 </html>

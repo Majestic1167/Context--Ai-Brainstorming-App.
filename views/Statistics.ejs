@@ -5,37 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI Brainstorming - Statistics</title>
     <link rel="stylesheet" href="/Css/mystyle.css" />
+    <link rel="stylesheet" href="/Css/about.css" />
   </head>
   <body>
-    <%- include('partials/header') %>
+    <div class="aboutmaincss">
+      <%- include('partials/header') %>
+      <main>
+        <div class="stats-wrapper">
+          <h2>📊 Your Statistics</h2>
+          <ul class="stats-list">
+            <li><strong>Total Words Contributed:</strong> <%= totalWords %></li>
+            <li><strong>Sessions Joined:</strong> <%= sessionsJoined %></li>
+            <li>
+              <strong>Top Contributor Times:</strong> <%= noOfTopContributions
+              %>
+            </li>
+          </ul>
+        </div>
 
-    <div class="stats-wrapper">
-      <h2>📊 Your Statistics</h2>
-      <ul class="stats-list">
-        <li><strong>Total Words Contributed:</strong> <%= totalWords %></li>
-        <li><strong>Sessions Joined:</strong> <%= sessionsJoined %></li>
-        <li>
-          <strong>Top Contributor Times:</strong> <%= noOfTopContributions %>
-        </li>
-      </ul>
+        <div class="leaderboard-wrapper">
+          <h2>🏅 Global Leaderboard (Top 10)</h2>
+          <ol class="leaderboard-list">
+            <% if (leaderboard && leaderboard.length) { %> <%
+            leaderboard.forEach((user, index) => { %>
+            <li>
+              <strong><%= user.username %></strong><br />
+              Words: <%= user.totalWords || 0 %> | Sessions: <%=
+              user.sessionsJoined || 0 %> | Top Contributor: <%=
+              user.noOfTopContributions || 0 %>
+            </li>
+            <% }); %> <% } else { %>
+            <li>No data available.</li>
+            <% } %>
+          </ol>
+        </div>
+      </main>
+      <%- include('partials/footer') %>
     </div>
-
-    <div class="leaderboard-wrapper">
-      <h2>🏅 Global Leaderboard (Top 10)</h2>
-      <ol class="leaderboard-list">
-        <% if (leaderboard && leaderboard.length) { %> <%
-        leaderboard.forEach((user, index) => { %>
-        <li>
-          <strong><%= user.username %></strong><br />
-          Words: <%= user.totalWords || 0 %> | Sessions: <%= user.sessionsJoined
-          || 0 %> | Top Contributor: <%= user.noOfTopContributions || 0 %>
-        </li>
-        <% }); %> <% } else { %>
-        <li>No data available.</li>
-        <% } %>
-      </ol>
-    </div>
-
-    <%- include('partials/footer') %>
   </body>
 </html>
