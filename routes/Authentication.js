@@ -1,4 +1,5 @@
 import express from "express";
+import upload from "../middlewares/multer.js"; // Import the Multer middleware
 
 const router = express.Router();
 
@@ -44,46 +45,7 @@ router.get("/Verifycode", getverifycodePage);
 router.get("/resetpassword", getResetPasswordPage);
 
 router.post("/login", handleLogin);
-//  login route
 
-/*
-router.post("/login", (req, res, next) => {
-  passport.authenticate("local", (err, user, info) => {
-    if (err || !user) {
-      return res.redirect("/login");
-    }
-    // Check if user is blocked
-    if (user.isBlocked) {
-      return res.render("login", {
-        error: "Your account has been blocked . Please contact support.",
-      });
-    }
-
-    req.logIn(user, (err) => {
-      if (err) {
-        return next(err);
-      }
-
-      req.session.user = {
-        _id: user._id,
-        username: user.username,
-        profilePicture: user.profilePicture,
-        isAdmin: user.isAdmin,
-      };
-
-      req.session.userId = user._id;
-
-      console.log("User logged in:", req.session.user);
-
-      return res.redirect("/loggedin"); // or wherever you go after login
-    });
-  })(req, res, next);
-});*/
-
-//router.post("/signup", handleSignup);
-import upload from "../middlewares/multer.js"; // Import the Multer middleware
-
-// Update the route to use Multer middleware
 router.post("/signup", upload.single("profilePicture"), handleSignup);
 
 router.post("/forgotpassword", handleForgotPassword);

@@ -9,73 +9,86 @@
   </head>
   <body>
     <!-- Navbar -->
-    <%- include('partials/header') %>
+    <div class="page-wrapper">
+      <%- include('partials/header') %>
+      <div class="main-wrapper">
+        <main class="main-content">
+          <div class="signup-box">
+            <h1>Sign Up</h1>
 
-    <main class="main-content">
-      <div class="signup-box">
-        <h1>Sign Up</h1>
+            <% if (error) { %>
+            <div class="error-message"><%= error %></div>
+            <% } %>
 
-        <% if (error) { %>
-        <div class="error-message"><%= error %></div>
-        <% } %>
+            <form
+              action="/signup"
+              method="POST"
+              class="signup-form"
+              enctype="multipart/form-data"
+            >
+              <!-- Name input field -->
+              <input type="text" name="name" placeholder="Name" required />
 
-        <form
-          action="/signup"
-          method="POST"
-          class="signup-form"
-          enctype="multipart/form-data"
-        >
-          <!-- Name input field -->
-          <input type="text" name="name" placeholder="Name" required />
+              <!-- Username -->
+              <input
+                type="text"
+                name="username"
+                placeholder="Username"
+                required
+              />
 
-          <!-- Username -->
-          <input type="text" name="username" placeholder="Username" required />
+              <!-- Email -->
+              <input type="email" name="email" placeholder="Email" required />
 
-          <!-- Email -->
-          <input type="email" name="email" placeholder="Email" required />
+              <!-- Phone -->
+              <input
+                type="text"
+                name="phone"
+                placeholder="Phone number"
+                required
+              />
 
-          <!-- Phone -->
-          <input type="text" name="phone" placeholder="Phone number" required />
+              <!-- Password fields -->
+              <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                required
+              />
+              <input
+                type="password"
+                name="confirmPassword"
+                placeholder="Confirm your password"
+                required
+              />
 
-          <!-- Password fields -->
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            required
-          />
-          <input
-            type="password"
-            name="confirmPassword"
-            placeholder="Confirm your password"
-            required
-          />
+              <!-- Profile Picture -->
+              <div class="form-group">
+                <label for="profilePicture">Profile Picture (Optional)</label>
+                <input
+                  type="file"
+                  name="profilePicture"
+                  id="profilePicture"
+                  accept="image/*"
+                />
+              </div>
 
-          <!-- Profile Picture -->
-          <div class="form-group">
-            <label for="profilePicture">Profile Picture (Optional)</label>
-            <input
-              type="file"
-              name="profilePicture"
-              id="profilePicture"
-              accept="image/*"
-            />
+              <!-- Terms checkbox -->
+              <div class="checkbox-container">
+                <input type="checkbox" id="terms" name="terms" required />
+                <label for="terms">Accept terms and policy</label>
+              </div>
+
+              <button type="submit">Sign Up</button>
+            </form>
+
+            <p class="signin-text">
+              Already have an account? <a href="/Login">Sign In</a>
+            </p>
           </div>
-
-          <!-- Terms checkbox -->
-          <div class="checkbox-container">
-            <input type="checkbox" id="terms" name="terms" required />
-            <label for="terms">Accept terms and policy</label>
-          </div>
-
-          <button type="submit">Sign Up</button>
-        </form>
-
-        <p class="signin-text">
-          Already have an account? <a href="/Login">Sign In</a>
-        </p>
+        </main>
       </div>
-    </main>
-    <%- include('partials/footer') %>
+      <%- include('partials/footer') %>
+    </div>
   </body>
 </html>

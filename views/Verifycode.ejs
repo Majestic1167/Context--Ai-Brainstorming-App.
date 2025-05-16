@@ -8,25 +8,29 @@
     <link rel="stylesheet" href="/Css/forgotpassword.css" />
   </head>
   <body>
-    <%- include('partials/header') %>
+    <div class="page-wrapper">
+      <%- include('partials/header') %>
 
-    <main class="main-content">
-      <div class="verify-code-box">
-        <h2>Verification Code</h2>
-        <% if (error) { %>
-        <div class="error-message"><%= error %></div>
-        <% } %>
-        <form action="/verifycode" method="POST">
-          <input
-            type="text"
-            name="code"
-            placeholder="Enter verification code"
-            required
-          />
-          <button type="submit">Verify Code</button>
-        </form>
+      <div class="main-wrapper">
+        <main class="main-content">
+          <div class="verify-code-box">
+            <h2>Verification Code</h2>
+            <% if (error) { %>
+            <div class="error-message"><%= error %></div>
+            <% } %>
+            <form action="/verifycode" method="POST">
+              <input
+                type="text"
+                name="code"
+                placeholder="Enter verification code"
+                required
+              />
+              <button type="submit">Verify Code</button>
+            </form>
+          </div>
+        </main>
       </div>
-    </main>
-    <%- include('partials/footer') %>
+      <%- include('partials/footer') %>
+    </div>
   </body>
 </html>

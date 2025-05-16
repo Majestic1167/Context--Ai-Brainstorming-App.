@@ -123,11 +123,13 @@
     transform: translateY(0);
   }
 }
-
-/* Responsive: Mobile */
+/* Small Devices: Phones (up to 600px) */
 @media (max-width: 600px) {
   .community-container {
+    max-width: 100%;
+    margin: 20px 10px;
     padding: 20px 15px;
+    border-radius: 10px;
   }
 
   .community-welcome-section h1 {
@@ -148,6 +150,40 @@
   .community-featured-sessions h2,
   .community-get-involved h2 {
     font-size: 1.4rem;
+  }
+
+  .community-how-it-works ul,
+  .community-guidelines ul,
+  .community-featured-sessions ul {
+    padding-left: 1rem;
+    font-size: 0.95rem;
+  }
+}
+
+/* Large Devices: Desktops (901px and above) */
+@media (min-width: 901px) {
+  .community-container {
+    padding: 40px 40px;
+  }
+
+  .community-welcome-section h1 {
+    font-size: 2.75rem;
+  }
+
+  .community-welcome-section p {
+    font-size: 1.2rem;
+  }
+
+  .btn {
+    font-size: 1rem;
+    padding: 0.7rem 1.4rem;
+  }
+
+  .community-how-it-works h2,
+  .community-guidelines h2,
+  .community-featured-sessions h2,
+  .community-get-involved h2 {
+    font-size: 1.85rem;
   }
 }
 
