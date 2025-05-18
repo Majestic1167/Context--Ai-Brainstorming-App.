@@ -17,10 +17,9 @@ import MongoStore from "connect-mongo";
 
 connectDB();
 
-import http from "http"; // For creating an HTTP server
-import { initSocket } from "./config/socketio.js"; // Import socket setup
+import http from "http";
+import { initSocket } from "./config/socketio.js";
 
-// Initialize the express app
 const app = express();
 
 // Ensure to define the paths
@@ -79,7 +78,7 @@ import user from "./routes/User.js";
 app.use("/", user); // User management routes
 
 import adminRoutes from "./routes/Adminroutes.js";
-app.use("/", adminRoutes); // or "/admin", depending on your URL design
+app.use("/", adminRoutes); // or "/admin"
 
 // Make flash messages available to views
 app.use((req, res, next) => {
@@ -104,8 +103,8 @@ app.delete("/terminate-session/:sessionId", (req, res) => {
   res.json({ message: "Session terminated successfully" });
 });
 
+//this is not in use anymore
 app.get("/restart-session", (req, res) => {
-  // Handle session restart logic (e.g., reset session state)
   res.redirect("/create"); // Redirect to session creation page
 });
 

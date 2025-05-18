@@ -33,7 +33,7 @@ passport.use(
 
         return done(null, user); // Authentication successful
       } catch (error) {
-        return done(error); // Handle any errors
+        return done(error);
       }
     }
   )
@@ -44,7 +44,7 @@ passport.serializeUser((user, done) => {
   done(null, {
     _id: user._id,
     username: user.username,
-    isAdmin: user.isAdmin, // Include the isAdmin field here
+    isAdmin: user.isAdmin,
   });
 });
 

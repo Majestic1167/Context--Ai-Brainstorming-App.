@@ -12,7 +12,6 @@ export function getLoginPage(req, res) {
   });
 }
 
-// GET: Logged-in Page
 export function getLoggedinPage(req, res) {
   res.render("loggedin", { user: req.user });
 }
@@ -34,6 +33,14 @@ export function getResetPasswordPage(req, res) {
   res.render("ResetPassword", { error: null });
 }
 
+/*
+ * req.body contains: username, email, phone, password, confirmPassword, name
+ * Handles user signup:
+ * - Validates input fields (passwords match, Gmail only, phone format)
+ * - Checks if user with same email, phone, or username exists
+ * - Saves new user with profile picture (default if none uploaded)
+ * - On error, deletes uploaded file if any and re-renders signup page with error message
+ */
 export async function handleSignup(req, res) {
   const { username, email, phone, password, confirmPassword, name } = req.body;
   const formData = { username, email, phone, name };
@@ -94,8 +101,17 @@ export async function handleSignup(req, res) {
     });
   }
 }
+
+/*
+ * req.body.identifier = user's email or phone
+ * Handles forgot password request:
+ * - Validates if input is valid email or phone
+ * - Finds user by email or phone
+ * - Generates a 6-digit verification code and saves it in session
+ * - Redirects to verification code input page
+ */
 export async function handleForgotPassword(req, res) {
-  const { identifier } = req.body; // Get the identifier (email or phone)
+  const { identifier } = req.body;
 
   // Check if the input is email or phone
   const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
@@ -108,7 +124,6 @@ export async function handleForgotPassword(req, res) {
   }
 
   try {
-    // Find the user by email or phone number in the database
     const user = await User.findOne({
       $or: [{ email: identifier }, { phone: identifier }],
     });
@@ -125,9 +140,8 @@ export async function handleForgotPassword(req, res) {
     // Store the verification code and identifier in the session
     req.session.verificationCode = verificationCode;
     req.session.identifier = identifier;
-    req.session.userEmail = user.email; // Store the email for password reset
+    req.session.userEmail = user.email;
 
-    // Optionally, send the code to the user's email or phone (not implemented here)
     console.log(`Verification code for ${identifier}: ${verificationCode}`);
 
     // Redirect to the verification code page
@@ -140,10 +154,17 @@ export async function handleForgotPassword(req, res) {
   }
 }
 
+/*
+ * req.body.code = code user entered
+ * Handles verification of the code sent for password reset:
+ * - Checks if verification code exists in session
+ * - Compares entered code with stored code
+ * - If match, redirects to reset password page
+ * - Else, renders verification page with error message
+ */
 export async function handleVerifyCode(req, res) {
   const { code } = req.body; // Get the entered verification code
 
-  // Check if the code exists in the session
   if (!req.session.verificationCode) {
     return res.render("Verifycode", {
       error: "Session expired. Please try again.",
@@ -152,19 +173,24 @@ export async function handleVerifyCode(req, res) {
 
   // Compare the entered code with the stored verification code
   if (code === req.session.verificationCode) {
-    // If the codes match, redirect to the password reset page
     res.redirect("/resetpassword");
   } else {
-    // If the codes don't match, show an error message
     res.render("Verifycode", { error: "Invalid verification code!" });
   }
 }
 
-// POST route to handle password reset
+/*
+ * req.body.password, req.body.confirmPassword
+ * Handles password reset:
+ * - Validates if passwords match
+ * - Hashes new password
+ * - Updates user's password in database (using email saved in session)
+ * - Redirects to login page after successful reset
+ * - Shows error if user not found or passwords don't match
+ */
 export async function handleResetPassword(req, res) {
   const { password, confirmPassword } = req.body;
 
-  // Check if the passwords match
   if (password !== confirmPassword) {
     return res.render("ResetPassword", { error: "Passwords do not match!" });
   }
@@ -187,6 +213,15 @@ export async function handleResetPassword(req, res) {
   res.redirect("/login");
 }
 
+/*
+ * Standard Express middleware function parameters: req, res, next
+ * Handles user login with Passport local strategy:
+ * - Authenticates user
+ * - Checks if user is blocked
+ * - Logs user in and saves user info in session
+ * - Redirects to logged-in page on success
+ * - Redirects to login page or renders error on failure
+ */
 export function handleLogin(req, res, next) {
   passport.authenticate("local", (err, user, info) => {
     if (err) return next(err);

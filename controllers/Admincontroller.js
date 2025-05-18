@@ -1,6 +1,8 @@
 import User from "../models/User.js";
 import Session from "../models/session.js";
 
+// All of the functions below are helper functions to perform crud operations by the admin
+
 export async function getmanageusers(req, res) {
   try {
     const users = await User.find();

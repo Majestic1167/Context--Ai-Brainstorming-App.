@@ -67,7 +67,7 @@ export async function getmyprojectpage(req, res) {
 }
 
 export function geteditprofilepage(req, res) {
-  res.render("editprofile", { user: req.session.user }); // assumes session stores user
+  res.render("editprofile", { user: req.session.user }); 
 }
 
 export async function handleEditProfile(req, res) {
@@ -103,7 +103,7 @@ export async function handleEditProfile(req, res) {
     req.session.user.username = user.username;
     req.session.user.profilePicture = user.profilePicture;
 
-    // ✅ Force session to save before redirect
+    //  Force session to save before redirect
     req.session.save((err) => {
       if (err) {
         console.error("Session save error:", err);

@@ -1,5 +1,3 @@
-// public/js/ui.js
-
 let participantCount = 0;
 
 export function updateParticipantCount(count) {

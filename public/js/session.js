@@ -12,6 +12,9 @@ const ideasContainer = document.getElementById("ideas-container");
 let socket;
 let sessionId, userId, username;
 
+/* This function starts the connection to the session.
+   It reads the session ID, user ID, and username from the page,
+   and sets up the socket connection so the user can join the session. */
 function initializeSession() {
   const container = document.getElementById("joined-session-container");
   if (!container) return;
@@ -39,7 +42,11 @@ function initializeSession() {
 }
 
 let countdownInterval;
-
+/* param: timeLeft (number), sessionId (string)
+  param timeLeft - how many seconds the round lasts
+   param sessionId - ID of the current session
+   This function starts a timer for the brainstorming round.
+   When time runs out, it collects all ideas and tells the server. */
 function startRoundTimer(timeLeft, sessionId) {
   const timerDisplay = document.getElementById("session-timer");
 
@@ -59,7 +66,7 @@ function startRoundTimer(timeLeft, sessionId) {
     } else {
       clearInterval(countdownInterval);
 
-      // ✅ NOW fetch the ideas AFTER time ends
+      //  NOW fetch the ideas AFTER time ends
       const ideaElements = document.getElementsByClassName("useridea");
       const ideaData = Array.from(ideaElements).map((el) => ({
         text: el.textContent.trim(),
@@ -69,13 +76,13 @@ function startRoundTimer(timeLeft, sessionId) {
 
       console.log(ideaData);
 
-      // ⬇️ Emit with the sessionId payload
+      //  Emit with the sessionId payload
       socket.emit("timer-finished", {
         sessionId,
         ideas: ideaData,
       });
 
-      // 🔽 Show "AI is generating..." message and hide other sections
+      //  Show "AI is generating..." message and hide other sections
       document.querySelector(".joined-chat-section").style.display = "none";
       document.querySelector(".joined-brainstorming-section").style.display =
         "none";
@@ -131,15 +138,20 @@ if (nextRoundBtn) {
 }
 // ---------------------- SOCKET LISTENERS ----------------------
 
+/* This function sets up all the socket event listeners,
+   so the app can react when something happens (like someone joining,
+   leaving, sending a message, etc). */
 function setupSocketListeners() {
   let participants = [];
 
   let initialRenderDone = false; // ← NEW FLAG
 
+  /* When the socket connects successfully */
   socket.on("connect", () => {
     console.log("Connected:", socket.id);
   });
 
+  /* When the server sends the full list of users in the room */
   socket.on("room participants", (data) => {
     console.log("Received room participants:", data);
     participants = Array.isArray(data) ? data : data.participants || [];
@@ -150,6 +162,7 @@ function setupSocketListeners() {
     }
   });
 
+  /* When a new user joins the session */
   socket.on("user joined", (data) => {
     participants.push(data);
     addParticipantToDOM(data);
@@ -157,6 +170,7 @@ function setupSocketListeners() {
     addSystemMessage(`${data.username} has joined.`);
   });
 
+  /* When a user leaves the session */
   socket.on("user left", (data) => {
     participants = participants.filter((p) => p.userId !== data.userId);
     removeParticipantFromDOM(data.username);
@@ -164,6 +178,7 @@ function setupSocketListeners() {
     addSystemMessage(`${data.username} has left.`);
   });
 
+  /* When a new chat message is received */
   socket.on("chat message", (data) => {
     const chatMessages = document.getElementById("chat-messages");
     if (!chatMessages) return;
@@ -183,11 +198,12 @@ function setupSocketListeners() {
 
   const allIdeas = []; // Store raw ideas
 
+  /* When an idea is received from another user */
   socket.on("receive-idea", ({ word, username }) => {
     const div = document.createElement("div");
     div.className = "idea-entry";
 
-    // Add HTML for display
+    //  HTML for display
     div.innerHTML = `<span class="user">${username}</span>: <span class="useridea">${word}</span>`;
     ideasContainer?.appendChild(div);
 
@@ -195,6 +211,7 @@ function setupSocketListeners() {
     allIdeas.push({ username, word });
   });
 
+  /* When someone is typing, show a typing message */
   socket.on("typing", (data) => {
     const indicator = document.getElementById("typing-indicator");
     if (indicator) {
@@ -205,6 +222,8 @@ function setupSocketListeners() {
     }
   });
 
+  /* param: data from server
+     This handles the AI-generated concept and shows it on the screen. */
   socket.on("ai-response", (data) => {
     let aiResponse = data.response || "No response";
 
@@ -386,6 +405,7 @@ function setupSocketListeners() {
     document.getElementById("ai-concept-content").style.display = "none";
   });
 
+  /* When the session officially starts, show the brainstorming screen */
   socket.on(
     "session-started",
     ({ sessionId, sessionName, theme, timer, round = 1, participants }) => {
